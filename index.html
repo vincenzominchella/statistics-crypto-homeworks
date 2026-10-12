@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elliptic Curve & Cryptographic Key Derivation Suite</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=10">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div class="brand-badge">
+          <span class="dot"></span> Cryptographic Primitives Suite
+        </div>
+        <div class="meta-tags">
+          <span class="meta-tag">Interactive Engineering Suite</span>
+          <span class="meta-tag">Curve: y² = x³ + 7</span>
+          <span class="meta-tag">ECDLP &bull; BIP-32/39/44 &bull; Keccak-256</span>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">Elliptic Curve & Cryptographic Key Derivation Suite</h1>
+        <p class="hero-subtitle">
+          Interactive cryptographic engine for Elliptic-Curve Discrete Logarithm Public-Key Cryptography (Toy Curve & SECP256K1) and the Full Ethereum Wallet Derivation Pipeline (Mnemonic &rarr; Seed &rarr; Address).
+        </p>
+      </div>
+
+      <!-- Navigation Bar -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tab-hw1" id="tabBtnHw1">
+          <span>&fnof;(x) Module 1: Toy ECC & SECP256K1</span>
+          <span class="badge-pill">ECDLP Suite</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-hw2" id="tabBtnHw2">
+          <span>&oplus; Module 2: Ethereum Key Derivation</span>
+          <span class="badge-pill">BIP39 &rarr; EIP55</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-reports" id="tabBtnReports">
+          <span>&equiv; Technical Specifications & Theory</span>
+          <span class="badge-pill">Documentation</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: HOMEWORK 1 — TOY ECC & SECP256K1 LAB -->
+    <!-- =================================================================== -->
+    <main id="tab-hw1" class="tab-content active">
+      <div class="layout-grid layout-grid-2col">
+        
+        <!-- Left Column: Parameters, Step Arithmetic & Double-and-Add -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- Parameters Card -->
+          <section class="card" aria-labelledby="hw1-param-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-param-title" class="card-title">Scalar Multiplication</h2>
+                <span class="card-subtitle">Public Key Generation: Q = k &middot; G</span>
+              </div>
+              <span class="card-badge badge-cyan">y² &equiv; x³ + 7 (mod 17)</span>
+            </div>
+
+            <div class="math-box">
+              E(&#120125;&#8321;&#8327;): y² &equiv; x³ + 7 (mod 17), &nbsp; Base Point G = (1, 5)
+            </div>
+
+            <!-- Base Point Selector -->
+            <div class="form-group">
+              <label for="basePointSelect" class="form-label">
+                <span>Select Valid Base Point G:</span>
+              </label>
+              <select id="basePointSelect" class="form-select"></select>
+            </div>
+
+            <!-- Private Key Slider -->
+            <div class="form-group">
+              <label for="kSlider" class="form-label">
+                <span>Private Key k:</span>
+                <span class="form-label-val" id="kValDisplay">6</span>
+              </label>
+              <input type="range" id="kSlider" class="form-input" min="1" max="18" value="6">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#64748b; font-family:var(--font-mono);">
+                <span>1 (Base)</span>
+                <span>k = 6 (HW Target)</span>
+                <span>18 (Group Order)</span>
+              </div>
+            </div>
+
+            <!-- Toy Public Key Metric Result -->
+            <div class="metric-tile" style="border-color:#10b98166; background:rgba(16, 185, 129, 0.05);">
+              <span class="metric-tile-label" style="color:#10b981;">TOY PUBLIC KEY OUTPUT</span>
+              <span class="metric-tile-val text-emerald" id="toyPublicKeyDisplay">Q = 6G = (5, 8)</span>
+              <span class="metric-tile-hint">Computed via chord-and-tangent group law over &#120125;&#8321;&#8327;</span>
+            </div>
+
+            <!-- Step by Step Multiples Table -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="font-size:0.9rem; font-weight:700; color:#cbd5e1;">Point Addition Orbit (1G &rarr; kG)</h3>
+                <span style="font-size:0.75rem; color:#64748b;">Click any row to jump to step</span>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Multiple</th>
+                      <th>Operation</th>
+                      <th>Slope m</th>
+                      <th>Point Coordinates</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stepTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Double-and-Add Algorithm Breakdown -->
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="font-size:0.9rem; font-weight:700; color:#cbd5e1;">Fast Method: Double-and-Add</h3>
+                <span class="card-badge badge-violet">O(log k) Complexity</span>
+              </div>
+              <div id="doubleAndAddSteps" style="max-height:220px; overflow-y:auto;"></div>
+            </div>
+
+          </section>
+
+          <!-- Group Order & Subgroup Analyzer -->
+          <section class="card" aria-labelledby="hw1-group-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-group-title" class="card-title">Group Structure Analyzer</h2>
+                <span class="card-subtitle">Exhaustive Point Enumeration & Orders</span>
+              </div>
+              <span class="card-badge badge-emerald">|E(&#120125;&#8321;&#8327;)| = 18</span>
+            </div>
+
+            <p style="font-size:0.85rem; color:#94a3b8;">
+              By Hasse's Theorem, \( |18 - (17 + 1)| \le 2\sqrt{17} \approx 8.25 \). Base point \(G=(1,5)\) generates a cyclic subgroup of order 9.
+            </p>
+
+            <div class="table-container" style="max-height:260px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Affine Point (x, y)</th>
+                    <th>Order &ordm;(P)</th>
+                    <th>Group Role</th>
+                  </tr>
+                </thead>
+                <tbody id="groupOrdersTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Visualizer Canvases & Statistical Lab -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <!-- Toy Curve Visualizer Card -->
+          <section class="card" aria-labelledby="hw1-curve-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-curve-title" class="card-title">Plot of the Toy Curve</h2>
+                <span class="card-subtitle">Chord & Tangent Rule over the Discrete Modular Torus & Finite Plane</span>
+              </div>
+              <span class="card-badge badge-amber" id="animStepBadge">Step 6 / 6 (6G)</span>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="canvas-wrapper">
+              <canvas id="discreteCanvas"></canvas>
+              
+              <!-- Playback Controls Overlay -->
+              <div class="canvas-controls">
+                <div class="playback-controls">
+                  <button class="btn btn-secondary btn-sm" id="resetAnimBtn" title="Reset to 1G">&#8634; Reset</button>
+                  <button class="btn btn-secondary btn-sm" id="stepBackBtn" title="Step Back">&#9664; Prev</button>
+                  <button class="btn btn-primary btn-sm" id="playAnimBtn" title="Play / Pause Animation">&#9658; Play</button>
+                  <button class="btn btn-secondary btn-sm" id="stepFwdBtn" title="Step Forward">Next &#9654;</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:0.75rem; color:#94a3b8;">Speed:</span>
+                  <input type="range" id="animSpeedSlider" min="200" max="2000" value="1300" style="width:100px; accent-color:var(--accent-cyan);">
+                </div>
+              </div>
+            </div>
+
+
+          </section>
+
+          <!-- Statistical Exploration Lab -->
+          <section class="card" aria-labelledby="hw1-stats-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-stats-title" class="card-title">Statistical Exploration Lab</h2>
+                <span class="card-subtitle">Marginal Distributions, Bit Balance & Avalanche Tests</span>
+              </div>
+              <span class="card-badge badge-rose">Desirable Cryptographic Properties</span>
+            </div>
+
+            <!-- Statistical KPI Tiles -->
+            <div class="metric-grid">
+              <div class="metric-tile">
+                <span class="metric-tile-label">Subgroup Orbit Size</span>
+                <span class="metric-tile-val text-cyan" id="statSampleSize">8 points</span>
+                <span class="metric-tile-hint">Order 9 excluding &Omicron;</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Mean (X, Y)</span>
+                <span class="metric-tile-val" id="statMeanX">5.75</span>
+                <span class="metric-tile-hint">E[X] &equiv; 8.0 uniform</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Shannon Entropy H(X)</span>
+                <span class="metric-tile-val text-violet" id="statEntropyX">2.75 / 4.09</span>
+                <span class="metric-tile-hint">bits vs log₂(17)</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Goodness of Fit</span>
+                <span class="metric-tile-val text-amber" id="statChiSquare">&chi;² = 18.5</span>
+                <span class="metric-tile-hint">vs Uniform U{0, 16}</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">SAC Avalanche</span>
+                <span class="metric-tile-val text-rose" id="statSAC">38.4% flips</span>
+                <span class="metric-tile-hint">Ideal Hash: 50.0%</span>
+              </div>
+            </div>
+
+            <!-- Histograms Layout -->
+            <div class="layout-grid layout-grid-equal">
+              <div>
+                <h4 style="font-size:0.8rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">X-Coordinate Distribution</h4>
+                <div class="canvas-wrapper" style="height:150px;">
+                  <canvas id="chartHistX" height="150"></canvas>
+                </div>
+              </div>
+              <div>
+                <h4 style="font-size:0.8rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">Y-Coordinate Distribution</h4>
+                <div class="canvas-wrapper" style="height:150px;">
+                  <canvas id="chartHistY" height="150"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bit Balance Chart -->
+            <div>
+              <h4 style="font-size:0.8rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">Coordinate Bit Balance (0 vs 1 Frequency across 5 Bits)</h4>
+              <div class="canvas-wrapper" style="height:140px;">
+                <canvas id="chartBits" height="140"></canvas>
+              </div>
+            </div>
+
+            <!-- Theoretical Discussion Callout -->
+            <div class="math-box" style="border-left-color:var(--accent-rose);">
+              <strong>One-Way Function (OWF) vs Cryptographic Hash Function:</strong><br>
+              &bull; <em>Why ECC is an OWF:</em> Easy forward computation \(Q = kG\) in \(O(\log k)\); computing \(k\) given \(Q\) requires solving the Elliptic Curve Discrete Logarithm Problem (ECDLP), which requires \(O(\sqrt{n})\) operations via Pollard's rho.<br>
+              &bull; <em>Why ECC is NOT a Hash Function:</em> It possesses algebraic homomorphism \((k_1 + k_2)G = k_1 G + k_2 G\), lacks diffusion/compression, and its output is strictly confined to the 1D abelian curve group rather than pseudorandom bitstrings.
+            </div>
+
+          </section>
+
+          <!-- Modern Blockchain Applications Research Section -->
+          <section class="card" aria-labelledby="hw1-research-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-research-title" class="card-title">Blockchain Research: Modern Applications</h2>
+                <span class="card-subtitle">Cryptography & Statistics in Bitcoin, Ethereum, Monero, Zcash & Solana</span>
+              </div>
+              <span class="card-badge badge-violet">Blockchain Research</span>
+            </div>
+
+            <div class="layout-grid" style="gap:14px;">
+              <div class="pipeline-node">
+                <div class="pipeline-node-title">
+                  <span class="pipeline-step-num">&#8383;</span>
+                  <span>Bitcoin: secp256k1, Schnorr Signatures & Poisson Difficulty</span>
+                </div>
+                <p style="font-size:0.85rem; color:#94a3b8;">
+                  Uses ECDSA over secp256k1 and Schnorr signatures (BIP-340 / Taproot) allowing linear signature aggregation: \(s = \sum s_i\). Mining arrival times follow a memoryless Poisson process \(P(X=k) = \frac{\lambda^k e^{-\lambda}}{k!}\); statistical difficulty adjusts every 2,016 blocks to maintain an expectation \(E[T] = 10\text{ min}\).
+                </p>
+              </div>
+
+              <div class="pipeline-node">
+                <div class="pipeline-node-title">
+                  <span class="pipeline-step-num">&#926;</span>
+                  <span>Ethereum: Keccak-256, BLS12-381 & RANDAO Randomness Beacons</span>
+                </div>
+                <p style="font-size:0.85rem; color:#94a3b8;">
+                  Proof-of-Stake beacon chain combines BLS12-381 pairing-friendly curve signatures for multi-validator attestation aggregation, and the RANDAO beacon (mix of validator pre-images) with Verifiable Delay Functions (VDF) to prevent statistical bias from the last block proposer.
+                </p>
+              </div>
+
+              <div class="pipeline-node">
+                <div class="pipeline-node-title">
+                  <span class="pipeline-step-num">Z</span>
+                  <span>Privacy Chains (Zcash & Monero): zk-SNARKs & Bulletproofs</span>
+                </div>
+                <p style="font-size:0.85rem; color:#94a3b8;">
+                  Zcash implements zero-knowledge SNARKs (Groth16 / Halo 2) based on pairing curves (BLS12-381 / Pasta curves), providing computational zero-knowledge proofs of transaction validity. Monero utilizes Ring Confidential Transactions (RingCT) and Bulletproofs: logarithmic-size zero-knowledge range proofs based purely on discrete-log assumptions.
+                </p>
+              </div>
+
+              <div class="pipeline-node">
+                <div class="pipeline-node-title">
+                  <span class="pipeline-step-num">S</span>
+                  <span>Solana & Polkadot: Proof of History & VRF Leader Election</span>
+                </div>
+                <p style="font-size:0.85rem; color:#94a3b8;">
+                  Solana implements Proof of History (PoH), running a sequential recursive SHA-256 loop as a cryptographically verifiable clock. Polkadot uses Verifiable Random Functions (VRF) over sr25519 (Schnorrkel) for unpredictability and fair slot leader election.
+                </p>
+              </div>
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: HOMEWORK 2 — ETHEREUM WALLET PIPELINE -->
+    <!-- =================================================================== -->
+    <main id="tab-hw2" class="tab-content">
+      <div class="layout-grid layout-grid-2col">
+
+        <!-- Left Column: Controls & Pipeline Flow -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <!-- Controls Card -->
+          <section class="card" aria-labelledby="hw2-ctrl-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-ctrl-title" class="card-title">Wallet Generation & Derivation</h2>
+                <span class="card-subtitle">BIP-39 &bull; BIP-32 &bull; BIP-44 &bull; secp256k1 &bull; Keccak-256 &bull; EIP-55</span>
+              </div>
+              <span class="card-badge badge-cyan">Ethereum Mainnet</span>
+            </div>
+
+            <!-- Toolbar buttons -->
+            <div class="btn-group">
+              <button class="btn btn-secondary btn-sm" id="genRandom12Btn">Generate 12 Words</button>
+              <button class="btn btn-secondary btn-sm" id="genRandom24Btn">Generate 24 Words</button>
+              <button class="btn btn-primary btn-sm" id="loadTestVectorBtn">Load Official Test Vector</button>
+            </div>
+
+            <!-- Mnemonic Input -->
+            <div class="form-group">
+              <label for="mnemonicInput" class="form-label">
+                <span>BIP-39 Mnemonic Phrase:</span>
+                <span style="font-size:0.75rem; color:#64748b;">(MetaMask / Ian Coleman compatible)</span>
+              </label>
+              <textarea id="mnemonicInput" class="form-textarea" rows="3" spellcheck="false"></textarea>
+            </div>
+
+            <!-- Passphrase & Path -->
+            <div class="layout-grid layout-grid-equal" style="gap:12px;">
+              <div class="form-group">
+                <label for="passphraseInput" class="form-label">Optional Passphrase (Salt):</label>
+                <input type="text" id="passphraseInput" class="form-input" placeholder="(Empty for default)">
+              </div>
+              <div class="form-group">
+                <label for="pathInput" class="form-label">BIP-44 Derivation Path:</label>
+                <input type="text" id="pathInput" class="form-input" value="m/44'/60'/0'/0/0">
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="deriveBtn" style="width:100%; transition:all 0.25s ease;">
+              Execute Full Cryptographic Pipeline &rarr;
+            </button>
+            <div id="derivationStatusMsg" class="derivation-status" style="display:none; margin-top:14px;"></div>
+
+          </section>
+
+          <!-- Interactive Derivation Pipeline Flow -->
+          <section class="card" aria-labelledby="hw2-flow-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-flow-title" class="card-title">Pipeline Step-by-Step Breakdown</h2>
+                <span class="card-subtitle">From Entropy to Checksummed Ethereum Address</span>
+              </div>
+              <span class="card-badge badge-emerald">Live Computation</span>
+            </div>
+
+            <div class="pipeline-flow">
+              
+              <!-- Step 1: BIP-39 Mnemonic -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">1</span>
+                    <span>BIP-39 Mnemonic Sentence</span>
+                  </div>
+                  <span class="card-badge badge-cyan">Entropy + SHA-256 Checksum</span>
+                </div>
+                <div id="mnemonicChips" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+              </div>
+
+              <!-- Step 2: BIP-39 Seed -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">2</span>
+                    <span>BIP-39 Binary Seed (512 bits)</span>
+                  </div>
+                  <span class="card-badge badge-violet">PBKDF2-HMAC-SHA512 (2048 rounds)</span>
+                </div>
+                <div class="hex-display">
+                  <span id="seedHexDisplay">Computing...</span>
+                  <button class="copy-btn" data-copy-target="seedHexDisplay">Copy</button>
+                </div>
+              </div>
+
+              <!-- Step 3: BIP-32 Master Node -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">3</span>
+                    <span>BIP-32 Master Root Node</span>
+                  </div>
+                  <span class="card-badge badge-amber">HMAC-SHA512("Bitcoin seed", Seed)</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <span style="font-size:0.75rem; color:#94a3b8;">Master Secret Key (I_L, 256 bits):</span>
+                  <div class="hex-display">
+                    <span id="masterSecretDisplay">...</span>
+                    <button class="copy-btn" data-copy-target="masterSecretDisplay">Copy</button>
+                  </div>
+                  <span style="font-size:0.75rem; color:#94a3b8;">Master Chain Code (I_R, 256 bits):</span>
+                  <div class="hex-display">
+                    <span id="masterChainDisplay">...</span>
+                    <button class="copy-btn" data-copy-target="masterChainDisplay">Copy</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4: BIP-44 Derived Private Key -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">4</span>
+                    <span>BIP-44 Derived Private Key (k)</span>
+                  </div>
+                  <span class="card-badge badge-cyan">Path: m/44'/60'/0'/0/0</span>
+                </div>
+                <div class="hex-display">
+                  <span id="derivedPrivKeyDisplay">...</span>
+                  <button class="copy-btn" data-copy-target="derivedPrivKeyDisplay">Copy</button>
+                </div>
+              </div>
+
+              <!-- Step 5: secp256k1 Public Key -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">5</span>
+                    <span>secp256k1 Public Key (Q = k &middot; G)</span>
+                  </div>
+                  <span class="card-badge badge-emerald">65 Bytes Uncompressed / 33 Bytes Compressed</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <span style="font-size:0.75rem; color:#94a3b8;">Uncompressed (0x04 || X || Y):</span>
+                  <div class="hex-display">
+                    <span id="secpPubUncompressedDisplay">...</span>
+                    <button class="copy-btn" data-copy-target="secpPubUncompressedDisplay">Copy</button>
+                  </div>
+                  <span style="font-size:0.75rem; color:#94a3b8;">Compressed (0x02/0x03 || X):</span>
+                  <div class="hex-display">
+                    <span id="secpPubCompressedDisplay">...</span>
+                    <button class="copy-btn" data-copy-target="secpPubCompressedDisplay">Copy</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 6: Keccak-256 Hash -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">6</span>
+                    <span>Keccak-256 Hashing of Public Key</span>
+                  </div>
+                  <span class="card-badge badge-rose">Keccak-f[1600] on (X || Y) 64 bytes</span>
+                </div>
+                <div class="hex-display">
+                  <span id="keccakHashDisplay">...</span>
+                  <button class="copy-btn" data-copy-target="keccakHashDisplay">Copy</button>
+                </div>
+              </div>
+
+              <!-- Step 7: Raw Address -->
+              <div class="pipeline-node">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num">7</span>
+                    <span>Raw Ethereum Address (20 Bytes)</span>
+                  </div>
+                  <span class="card-badge badge-amber">Last 20 Bytes (160 bits)</span>
+                </div>
+                <div class="hex-display">
+                  <span id="rawAddressDisplay">...</span>
+                  <button class="copy-btn" data-copy-target="rawAddressDisplay">Copy</button>
+                </div>
+              </div>
+
+              <!-- Step 8: EIP-55 Checksummed Address -->
+              <div class="pipeline-node" style="border-color:#10b981; background:rgba(16, 185, 129, 0.05);">
+                <div class="pipeline-node-header">
+                  <div class="pipeline-node-title">
+                    <span class="pipeline-step-num" style="background:#10b981;">8</span>
+                    <span>EIP-55 Checksummed Address</span>
+                  </div>
+                  <span class="card-badge badge-emerald">Mixed-Case Error Detection</span>
+                </div>
+                <div class="hex-display" style="font-size:1.05rem; font-weight:700; color:#10b981;">
+                  <span id="checksumAddressDisplay">...</span>
+                  <button class="copy-btn" data-copy-target="checksumAddressDisplay">Copy</button>
+                </div>
+
+                <!-- Character-by-character Inspector -->
+                <div>
+                  <span style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px; display:block;">
+                    Character-by-character hash inspection (Letters capitalized if Keccak nibble &ge; 8):
+                  </span>
+                  <div id="eip55InspectorGrid" class="eip55-grid"></div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Avalanche Lab, Conceptual Matrix & Historical Context -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <!-- Live Avalanche & Sensitivity Lab -->
+          <section class="card" aria-labelledby="hw2-avalanche-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-avalanche-title" class="card-title">Live Pipeline Avalanche Lab</h2>
+                <span class="card-subtitle">Sensitivity & Diffusion at Each Pipeline Transformation</span>
+              </div>
+              <span class="card-badge badge-rose">Statistical Avalanche</span>
+            </div>
+
+            <p style="font-size:0.85rem; color:#94a3b8;">
+              Test what happens when a single word in the mnemonic is modified (simulating a 1-bit or 1-word transcription error). We measure the Hamming distance between both pipeline executions:
+            </p>
+
+            <button class="btn btn-secondary btn-sm" id="testAvalancheBtn">
+              &#9889; Run 1-Word Mutation Experiment
+            </button>
+
+            <div style="font-size:0.8rem; font-family:var(--font-mono); color:#cbd5e1; background:#030712; padding:10px; border-radius:var(--radius-sm); border:1px solid #1e293b;">
+              <span style="color:#64748b;">Modified Mnemonic:</span><br>
+              <span id="avalancheModMnemonic">Click button to run test...</span>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Pipeline Stage</th>
+                    <th>Bit Flips Observed</th>
+                    <th>Theoretical Expectation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>PBKDF2 Seed (512 bits)</strong></td>
+                    <td id="avSeedDiff">-</td>
+                    <td>~50.0% (Cryptographic PRF)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>BIP-32 Derived Key (256 bits)</strong></td>
+                    <td id="avPrivDiff">-</td>
+                    <td>~50.0% (HMAC-SHA512)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>secp256k1 Public Key (512 bits)</strong></td>
+                    <td id="avPubDiff">-</td>
+                    <td>Algebraic diffusion on curve</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Keccak-256 Digest (256 bits)</strong></td>
+                    <td id="avHashDiff">-</td>
+                    <td>~50.0% (Sponge permutation)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Ethereum Address (160 bits)</strong></td>
+                    <td id="avAddrDiff">-</td>
+                    <td>~50.0% (Strict avalanche)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </section>
+
+          <!-- Conceptual Distinction Matrix -->
+          <section class="card" aria-labelledby="hw2-matrix-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-matrix-title" class="card-title">Cryptographic Primitives Matrix</h2>
+                <span class="card-subtitle">Separation of Concerns in the Ethereum Stack</span>
+              </div>
+              <span class="card-badge badge-cyan">Concepts</span>
+            </div>
+
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th>Concept</th>
+                  <th>Core Mechanism</th>
+                  <th>Ethereum Implementation</th>
+                  <th>Reversibility</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Key Generation</td>
+                  <td>True Random Entropy (CSPRNG)</td>
+                  <td>128/256 bits CSPRNG entropy</td>
+                  <td>Irreversible</td>
+                </tr>
+                <tr>
+                  <td>Key Derivation</td>
+                  <td>Tree expansion from seed</td>
+                  <td>BIP-32 / BIP-44 HMAC-SHA512</td>
+                  <td>Deterministic</td>
+                </tr>
+                <tr>
+                  <td>Public-Key Crypto</td>
+                  <td>One-way trapdoor function</td>
+                  <td>secp256k1 (ECDSA / Q=kG)</td>
+                  <td>Infeasible (ECDLP)</td>
+                </tr>
+                <tr>
+                  <td>Cryptographic Hash</td>
+                  <td>Fixed-size irreversible digest</td>
+                  <td>Keccak-256 sponge permutation</td>
+                  <td>Pre-image resistant</td>
+                </tr>
+                <tr>
+                  <td>Checksum</td>
+                  <td>Typo & error detection</td>
+                  <td>BIP-39 SHA256 & EIP-55 casing</td>
+                  <td>Verification only</td>
+                </tr>
+                <tr>
+                  <td>Encoding</td>
+                  <td>Format representation</td>
+                  <td>Hexadecimal (0x...)</td>
+                  <td>Fully reversible</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </section>
+
+          <!-- Historical Timeline Card -->
+          <section class="card" aria-labelledby="hw2-history-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-history-title" class="card-title">Temporal & Historical Timeline</h2>
+                <span class="card-subtitle">Chronological Evolution of Cryptographic Standards (1977 &ndash; 2016)</span>
+              </div>
+              <span class="card-badge badge-violet">History</span>
+            </div>
+
+            <div class="timeline-track">
+              <div class="timeline-event">
+                <span class="timeline-year">1977</span>
+                <span class="timeline-heading">RSA Public-Key Cryptography</span>
+                <p class="timeline-desc">Introduced by Rivest, Shamir, and Adleman. First practical public-key cryptosystem based on integer factorization.</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2001</span>
+                <span class="timeline-heading">SHA-2 / SHA-512 Standardized</span>
+                <p class="timeline-desc">Standardized by NIST (FIPS 180-2). Uses the Merkle-Damg&aring;rd construction with Davies-Meyer compression function.</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2012</span>
+                <span class="timeline-heading">BIP-32: Hierarchical Deterministic Wallets</span>
+                <p class="timeline-desc">Proposed by Pieter Wuille. Introduced tree-derived child key pairs from a single root seed using HMAC-SHA512 and chain codes.</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2013</span>
+                <span class="timeline-heading">BIP-39: Mnemonic Sentences for Deterministic Wallets</span>
+                <p class="timeline-desc">Introduced by Marek Palatinus et al. Standardized mapping random entropy to 12-24 human-readable English words + PBKDF2 stretching.</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2014</span>
+                <span class="timeline-heading">BIP-44: Multi-Account HD Derivation Paths</span>
+                <p class="timeline-desc">Standardized hierarchical tree paths: m / purpose' / coin_type' / account' / change / address_index (Ethereum coin_type = 60').</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2015</span>
+                <span class="timeline-heading">Ethereum Genesis (Keccak-256) vs NIST SHA-3 (FIPS 202)</span>
+                <p class="timeline-desc">Ethereum deployed with Keccak-256 (padding 0x01). Months later, NIST finalized FIPS 202 adding a 2-bit domain separation suffix (padding 0x06). Result: Keccak-256 &ne; SHA3-256.</p>
+              </div>
+
+              <div class="timeline-event">
+                <span class="timeline-year">2016</span>
+                <span class="timeline-heading">EIP-55: Mixed-Case Checksum Addresses</span>
+                <p class="timeline-desc">Proposed by Vitalik Buterin. Introduced backward-compatible typo protection by capitalizing hex characters based on Keccak-256 hash nibbles without adding address length.</p>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Technical Deep Dive: Merkle-Damgard vs Sponge & Design Rationale -->
+          <section class="card" aria-labelledby="hw2-deepdive-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw2-deepdive-title" class="card-title">Technical Deep Dive</h2>
+                <span class="card-subtitle">Sponge Construction & Multi-Primitive Architecture Rationale</span>
+              </div>
+              <span class="card-badge badge-amber">Theoretical Analysis</span>
+            </div>
+
+            <div class="math-box">
+              <strong>Merkle-Damg&aring;rd (SHA-2/SHA-512) vs Sponge Construction (Keccak/SHA-3):</strong><br>
+              &bull; <em>SHA-2 (Merkle-Damg&aring;rd):</em> Successive compression functions \(h_i = f(h_{i-1}, m_i)\). Vulnerable to <em>length extension attacks</em> where an attacker knowing \(H(m)\) can compute \(H(m \parallel \text{pad} \parallel m')\) without knowing \(m\). This required wrapping SHA-512 in HMAC.<br>
+              &bull; <em>Keccak (Sponge Construction):</em> Operates on a 1600-bit state (\(b = r + c = 1088 + 512\)). In the <em>absorb phase</em>, message blocks are XORed into the rate \(r\); the permutation \(f\) scrambles all 1600 bits. Because capacity \(c\) is never output or directly accessible, it is mathematically immune to length extension attacks.
+            </div>
+
+            <div class="math-box" style="margin-top:12px; border-left-color:var(--accent-emerald);">
+              <strong>Why Multi-Primitive Architecture Instead of One Single Algorithm?</strong><br>
+              1. <em>Separation of Mathematical Capabilities:</em> Signing requires an abelian group with hard discrete logarithm (secp256k1). Hashing requires irreversible compression with zero algebraic structure (Keccak-256). Password stretching requires memory-hard iterations (PBKDF2).<br>
+              2. <em>Storage Efficiency & Quantum Defense:</em> Compressing 64-byte public keys into 20-byte addresses saves massive state storage in the Ethereum state trie and protects public keys from Shor's algorithm until the first outgoing transaction.<br>
+              3. <em>Usability vs Cryptographic Entropy:</em> Humans cannot reliably transcribe 128 raw random bits; BIP-39 translates entropy to natural words with self-verifying checksums, and EIP-55 catches 99.986% of address copy-paste typos.
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: ACADEMIC REPORTS & THEORY -->
+    <!-- =================================================================== -->
+    <main id="tab-reports" class="tab-content">
+      <div class="card" style="max-width:1100px; margin:0 auto;">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title">Technical Specifications & Cryptographic Reports</h2>
+            <span class="card-subtitle">Comprehensive Architectural & Mathematical Specifications</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm active" id="viewHw1ReportBtn">Module 1 Specification</button>
+            <button class="btn btn-secondary btn-sm" id="viewHw2ReportBtn">Module 2 Specification</button>
+          </div>
+        </div>
+
+        <article class="markdown-viewer" id="reportMarkdownContent">
+          <!-- Populated dynamically by app.js -->
+        </article>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p style="font-size:0.75rem; color:#475569;">
+        Built with Pure Vanilla HTML5, CSS3, & Modern ECMAScript (BigInt, WebCrypto & Web Canvas). Zero external dependencies.
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="bip39_wordlist.js"></script>
+  <script src="hw1_ecc.js"></script>
+  <script src="hw2_wallet.js"></script>
+  <script src="app.js?v=11"></script>
+</body>
+</html>
