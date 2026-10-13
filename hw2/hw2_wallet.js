@@ -543,6 +543,34 @@
       };
     }
 
+    mnemonicToEntropy(mnemonic) {
+      const val = this.validateMnemonic(mnemonic);
+      if (!val.valid) return null;
+      let bitString = '';
+      for (let word of val.words) {
+        const index = this.wordlist.indexOf(word);
+        if (index === -1) return null;
+        bitString += index.toString(2).padStart(11, '0');
+      }
+      const numWords = val.words.length;
+      const totalBits = numWords * 11;
+      const csBits = totalBits / 33;
+      const entBits = totalBits - csBits;
+      const entropyBits = bitString.substring(0, entBits);
+      const checksumBits = bitString.substring(entBits);
+
+      const entropyBytes = new Uint8Array(entBits / 8);
+      for (let i = 0; i < entropyBytes.length; i++) {
+        entropyBytes[i] = parseInt(entropyBits.substr(i * 8, 8), 2);
+      }
+      return {
+        entropyHex: bytesToHex(entropyBytes),
+        checksumHex: parseInt(checksumBits, 2).toString(16).toUpperCase(),
+        checksumBits,
+        wordCount: numWords
+      };
+    }
+
     validateMnemonic(mnemonic) {
       const words = mnemonic.trim().toLowerCase().split(/\s+/);
       if (words.length !== 12 && words.length !== 24) {
@@ -627,7 +655,38 @@
       // Step 8: EIP-55 Checksum Encoding
       const { checksummed, breakdown } = toChecksumAddress(rawAddress);
 
+      const entropyInfo = this.bip39.mnemonicToEntropy(mnemonic) || {
+        entropyHex: '00000000000000000000000000000000',
+        checksumHex: '0',
+        wordCount: words.length
+      };
+
+      const step1 = {
+        entropyHex: entropyInfo.entropyHex,
+        wordCount: words.length,
+        checksumHex: entropyInfo.checksumHex
+      };
+      const step2 = { seedHex };
+      const step3 = { masterPrivateKeyHex: masterSecretHex, masterChainCodeHex };
+      const step4 = { path: derivationPath, derivedPrivateKeyHex: '0x' + finalPrivKeyHex };
+      const step5 = {
+        uncompressedPublicKeyHex: '0x' + pubUncompressed,
+        xHex: '0x' + pubXHex,
+        yHex: '0x' + pubYHex
+      };
+      const step6 = { keccakHashHex: '0x' + keccakHex };
+      const step7 = { rawAddress: '0x' + rawAddress };
+      const step8 = { checksummedAddress: checksummed };
+
       return {
+        step1,
+        step2,
+        step3,
+        step4,
+        step5,
+        step6,
+        step7,
+        step8,
         mnemonic,
         passphrase,
         derivationPath,

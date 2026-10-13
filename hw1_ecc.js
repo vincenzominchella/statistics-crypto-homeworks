@@ -305,6 +305,10 @@
       return geo.toCanvas(x, y);
     }
 
+    drawStep(stepData) {
+      this.render(stepData);
+    }
+
     render(stepData = this.currentStep) {
       this.currentStep = stepData;
       this.checkResolution();

@@ -153,27 +153,51 @@
       const result = await pipeline.deriveFullPipeline(mnemonic, passphrase, path);
       state.currentResult = result;
 
+      // Safe property extraction
+      const s1 = result.step1 || {};
+      const s2 = result.step2 || {};
+      const s3 = result.step3 || {};
+      const s4 = result.step4 || {};
+      const s5 = result.step5 || {};
+      const s6 = result.step6 || {};
+      const s7 = result.step7 || {};
+      const s8 = result.step8 || {};
+
+      const entropyHex = s1.entropyHex || '00000000000000000000000000000000';
+      const wordCount = s1.wordCount || mnemonic.trim().split(/\s+/).length;
+      const checksumHex = s1.checksumHex || '0';
+      const seedHex = s2.seedHex || result.seedHex || '';
+      const masterKey = s3.masterPrivateKeyHex || result.masterSecretHex || '';
+      const masterChain = s3.masterChainCodeHex || result.masterChainCodeHex || '';
+      const derivedPriv = s4.derivedPrivateKeyHex || result.derivedPrivateKey || '';
+      const pubUncomp = s5.uncompressedPublicKeyHex || result.publicKeyUncompressed || '';
+      const pubX = s5.xHex || (result.publicKeyPoint ? result.publicKeyPoint.x : '');
+      const pubY = s5.yHex || (result.publicKeyPoint ? result.publicKeyPoint.y : '');
+      const keccakHash = s6.keccakHashHex || result.keccak256Hash || '';
+      const rawAddr = s7.rawAddress || result.rawAddress || '';
+      const checksumAddr = s8.checksummedAddress || result.checksummedAddress || '';
+
       // Update Pipeline Step Cards
-      setText('step1EntropyHex', result.step1.entropyHex);
-      setText('step1WordCount', `${result.step1.wordCount} words (Checksum: 0x${result.step1.checksumHex})`);
-      setText('step2SeedHex', result.step2.seedHex);
-      setText('step3MasterKeyHex', result.step3.masterPrivateKeyHex);
-      setText('step3ChainCodeHex', result.step3.masterChainCodeHex);
-      setText('step4PathDisplay', result.step4.path);
-      setText('step4DerivedKeyHex', result.step4.derivedPrivateKeyHex);
-      setText('step5PubKeyHex', result.step5.uncompressedPublicKeyHex);
-      setText('step5PointCoords', `X: ${result.step5.xHex}\nY: ${result.step5.yHex}`);
-      setText('step6HashHex', result.step6.keccakHashHex);
-      setText('step7RawAddress', result.step7.rawAddress);
-      setText('step8ChecksumAddress', result.step8.checksummedAddress);
+      setText('step1EntropyHex', entropyHex);
+      setText('step1WordCount', `${wordCount} words (Checksum: 0x${checksumHex})`);
+      setText('step2SeedHex', seedHex);
+      setText('step3MasterKeyHex', masterKey);
+      setText('step3ChainCodeHex', masterChain);
+      setText('step4PathDisplay', path);
+      setText('step4DerivedKeyHex', derivedPriv);
+      setText('step5PubKeyHex', pubUncomp);
+      setText('step5PointCoords', `X: ${pubX}\nY: ${pubY}`);
+      setText('step6HashHex', keccakHash);
+      setText('step7RawAddress', rawAddr);
+      setText('step8ChecksumAddress', checksumAddr);
 
       // Render EIP-55 Visualizer Tiles
-      renderEip55Tiles(result.step8.checksummedAddress, result.step7.rawAddress);
+      renderEip55Tiles(checksumAddr, rawAddr);
 
       if (statusMsg) {
         statusMsg.style.display = 'block';
         statusMsg.className = 'status-banner status-success';
-        statusMsg.innerHTML = `&check; <strong>Pipeline Executed:</strong> Derived Ethereum Address <code>${result.step8.checksummedAddress}</code> (EIP-55 Checksum Verified).`;
+        statusMsg.innerHTML = `&check; <strong>Pipeline Executed:</strong> Derived Ethereum Address <code>${checksumAddr}</code> (EIP-55 Checksum Verified).`;
       }
     } catch (err) {
       console.error(err);

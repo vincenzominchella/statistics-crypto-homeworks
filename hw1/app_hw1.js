@@ -15,7 +15,7 @@
     currentStepIndex: 0,
     isPlaying: false,
     playTimer: null,
-    speedMs: 1300,
+    speedMs: 750,
     discreteVis: null,
     statsEngine: null
   };
@@ -240,6 +240,7 @@
 
     if (state.currentStepIndex >= state.history.length - 1) {
       state.currentStepIndex = 0;
+      renderCurrentHW1Step();
     }
 
     function tick() {
