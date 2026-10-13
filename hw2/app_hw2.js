@@ -107,6 +107,14 @@
       });
     }
 
+    let debounceTimer = null;
+    function scheduleDerivation() {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        triggerDerivation(false);
+      }, 150);
+    }
+
     if (mnemonicInput) {
       mnemonicInput.addEventListener('input', () => {
         if (mnemonicInput.value.trim() === state.defaultMnemonic) {
@@ -114,11 +122,16 @@
         } else {
           setMnemonicMode(null);
         }
+        scheduleDerivation();
       });
     }
 
-    if (deriveBtn) {
-      deriveBtn.addEventListener('click', () => triggerDerivation(false));
+    if (passphraseInput) {
+      passphraseInput.addEventListener('input', scheduleDerivation);
+    }
+
+    if (pathInput) {
+      pathInput.addEventListener('input', scheduleDerivation);
     }
 
     // Live Avalanche test button
@@ -144,10 +157,7 @@
     const passphrase = passphraseInput ? passphraseInput.value : '';
     const path = pathInput ? pathInput.value.trim() : "m/44'/60'/0'/0/0";
 
-    if (deriveBtn) {
-      deriveBtn.disabled = true;
-      deriveBtn.textContent = 'Deriving Keys & Hash Digests...';
-    }
+
 
     try {
       const result = await pipeline.deriveFullPipeline(mnemonic, passphrase, path);
@@ -197,7 +207,7 @@
       if (statusMsg) {
         statusMsg.style.display = 'block';
         statusMsg.className = 'status-banner status-success';
-        statusMsg.innerHTML = `&check; <strong>Pipeline Executed:</strong> Derived Ethereum Address <code>${checksumAddr}</code> (EIP-55 Checksum Verified).`;
+        statusMsg.innerHTML = `&check; <strong>Live Pipeline Active:</strong> Derived Ethereum Address <code>${checksumAddr}</code> (EIP-55 Checksum Verified).`;
       }
     } catch (err) {
       console.error(err);
@@ -207,10 +217,7 @@
         statusMsg.innerHTML = `&cross; <strong>Derivation Error:</strong> ${err.message}`;
       }
     } finally {
-      if (deriveBtn) {
-        deriveBtn.disabled = false;
-        deriveBtn.innerHTML = 'Execute Full Cryptographic Pipeline &rarr;';
-      }
+      // Real-time reactive pipeline execution completed
     }
   }
 
