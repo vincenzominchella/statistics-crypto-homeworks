@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework 1: Public-Key Cryptography — SECP256K1 & Finite Fields</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=12">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div class="brand-badge">
+          <span class="dot"></span> Cryptographic Primitives Suite &bull; Homework 1
+        </div>
+        <div class="header-meta">
+          <a href="../" class="meta-tag" style="text-decoration:none; color:var(--accent-cyan); font-weight:600;">&larr; Suite Portal Hub</a>
+          <span class="meta-tag">Curve: y² = x³ + 7</span>
+          <span class="meta-tag">Field: &#120125;&#8321;&#8327; &bull; SECP256K1</span>
+          <a href="../hw2/" class="meta-tag" style="text-decoration:none; color:var(--text-muted);">Go to Homework 2 &rarr;</a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">Homework 1: Public-Key Cryptography & Scalar Multiplication</h1>
+        <p class="hero-subtitle">
+          Interactive cryptographic engine for Elliptic-Curve Discrete Logarithm Public-Key Cryptography (Toy Weierstrass Curve E(&#120125;&#8321;&#8327;): y² &equiv; x³ + 7 & SECP256K1) with Empirical Statistical Analysis.
+        </p>
+      </div>
+
+      <!-- Navigation Bar -->
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tab-hw1" id="tabBtnHw1">
+          <span>&fnof;(x) Interactive Laboratory (SECP256K1 & &#120125;&#8321;&#8327;)</span>
+          <span class="badge-pill">ECDLP Suite</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-report" id="tabBtnReport">
+          <span>&equiv; Technical Specification & Formal Paper</span>
+          <span class="badge-pill">Module 1 Report</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: HOMEWORK 1 — TOY ECC & SECP256K1 LAB -->
+    <!-- =================================================================== -->
+    <main id="tab-hw1" class="tab-content active">
+      <div class="layout-grid layout-grid-2col">
+        
+        <!-- Left Column: Parameters, Step Arithmetic & Double-and-Add -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- Parameters Card -->
+          <section class="card" aria-labelledby="hw1-param-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-param-title" class="card-title">Scalar Multiplication</h2>
+                <span class="card-subtitle">Public Key Generation: Q = k &middot; G</span>
+              </div>
+              <span class="card-badge badge-cyan">y² &equiv; x³ + 7 (mod 17)</span>
+            </div>
+
+            <div class="math-box">
+              E(&#120125;&#8321;&#8327;): y² &equiv; x³ + 7 (mod 17), &nbsp; Base Point G = (1, 5)
+            </div>
+
+            <!-- Base Point Selector -->
+            <div class="form-group">
+              <label for="basePointSelect" class="form-label">
+                <span>Select Valid Base Point G:</span>
+              </label>
+              <select id="basePointSelect" class="form-select"></select>
+            </div>
+
+            <!-- Private Key Slider -->
+            <div class="form-group">
+              <label for="kSlider" class="form-label">
+                <span>Private Key k:</span>
+                <span class="form-label-val" id="kValDisplay">6</span>
+              </label>
+              <input type="range" id="kSlider" class="form-input" min="1" max="18" value="6">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#64748b; font-family:var(--font-mono);">
+                <span>1 (Base)</span>
+                <span>k = 6 (HW Target)</span>
+                <span>18 (Group Order)</span>
+              </div>
+            </div>
+
+            <!-- Computed Public Key Output Tile -->
+            <div class="metric-tile" style="margin-top:4px;">
+              <span class="metric-tile-label">Computed Public Key (Q = kG)</span>
+              <span class="metric-tile-val text-emerald" id="toyPublicKeyDisplay">Q = 6G = (5, 8)</span>
+              <span style="font-size:0.75rem; color:#64748b; margin-top:4px;">
+                Verified on curve: 8² &equiv; 5³ + 7 &equiv; 13 (mod 17)
+              </span>
+            </div>
+
+            <!-- Naive Step-by-Step Table -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-size:0.8rem; font-weight:700; color:#cbd5e1; text-transform:uppercase; letter-spacing:0.05em;">
+                Repeated Addition Steps (1G &rarr; kG)
+              </span>
+              <div class="table-container" style="max-height:220px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Point</th>
+                      <th>Operation</th>
+                      <th>Slope (m)</th>
+                      <th>Coordinates (x, y)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="stepTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Double-and-Add Algorithm Comparison -->
+          <section class="card" aria-labelledby="da-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="da-title" class="card-title">Double-and-Add Algorithm</h2>
+                <span class="card-subtitle">Binary Square-and-Multiply Equivalent: O(log k)</span>
+              </div>
+              <span class="card-badge badge-amber">Production Standard</span>
+            </div>
+
+            <div class="metric-tile">
+              <span class="metric-tile-label">Algorithmic Complexity Comparison</span>
+              <span class="metric-tile-val text-amber" id="complexityComparisonVal">5 vs 3 ops</span>
+              <span style="font-size:0.75rem; color:#64748b; margin-top:4px;" id="complexitySubtitle">
+                Naive: 5 additions | Double-and-Add: 3 point operations
+              </span>
+            </div>
+
+            <div class="table-container" style="max-height:220px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Step Type</th>
+                    <th>Binary Bit Operation</th>
+                    <th>Intermediate Result</th>
+                  </tr>
+                </thead>
+                <tbody id="daTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="math-box" style="font-size:0.8rem;">
+              <strong>SECP256K1 Scale:</strong> For a 256-bit scalar k, naive addition requires 2²⁵⁶ operations (~10⁷⁷ years). Double-and-Add requires at most 256 doublings + 128 additions = 384 operations (~1.2 milliseconds)!
+            </div>
+          </section>
+
+          <!-- Group Structure & Element Orders -->
+          <section class="card" aria-labelledby="group-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="group-title" class="card-title">Group Theory & Subgroup Analysis</h2>
+                <span class="card-subtitle">Abelian Group E(&#120125;&#8321;&#8327;) Point Classification</span>
+              </div>
+              <span class="card-badge badge-purple">Lagrange & Hasse</span>
+            </div>
+
+            <div class="metric-tile">
+              <span class="metric-tile-label">Group Order |E(&#120125;&#8321;&#8327;)|</span>
+              <span class="metric-tile-val text-purple" id="groupOrderVal">18 elements</span>
+              <span style="font-size:0.75rem; color:#64748b; margin-top:4px;" id="groupOrderHasse">
+                Hasse bound: |18 - (17+1)| = 0 &le; 2&radic;17 &approx; 8.25
+              </span>
+            </div>
+
+            <div class="table-container" style="max-height:240px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Point (x, y)</th>
+                    <th>Element Order</th>
+                    <th>Subgroup Type</th>
+                    <th>y² mod 17 (Residue)</th>
+                  </tr>
+                </thead>
+                <tbody id="groupPointsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Right Column: Visualizer, Canvas & Statistical Exploration -->
+        <div style="display:flex; flex-direction:column; gap:24px;">
+          
+          <!-- Visualizer Card: Plot of the Toy Curve -->
+          <section class="card" aria-labelledby="vis-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="vis-title" class="card-title">Plot of the Toy Curve</h2>
+                <span class="card-subtitle">Interactive Chord, Tangent & Reflection Visualizer</span>
+              </div>
+              <span class="card-badge badge-emerald" id="currentStepIndicator">Step: 6G</span>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="canvas-wrapper">
+              <canvas id="discreteCanvas"></canvas>
+              <div class="canvas-controls">
+                <div class="playback-controls">
+                  <button class="btn btn-secondary btn-sm" id="resetAnimBtn" title="Reset to 1G">&#8634; Reset</button>
+                  <button class="btn btn-secondary btn-sm" id="stepBackBtn" title="Step Back">&#9664; Prev</button>
+                  <button class="btn btn-primary btn-sm" id="playAnimBtn" title="Play / Pause Animation">&#9658; Play</button>
+                  <button class="btn btn-secondary btn-sm" id="stepFwdBtn" title="Step Forward">Next &#9654;</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:0.75rem; color:#94a3b8;">Speed:</span>
+                  <input type="range" id="animSpeedSlider" min="200" max="2000" value="1300" style="width:100px; accent-color:var(--accent-cyan);">
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Statistical Exploration Lab -->
+          <section class="card" aria-labelledby="hw1-stats-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="hw1-stats-title" class="card-title">Statistical Exploration Lab</h2>
+                <span class="card-subtitle">Marginal Distributions, Bit Balance & Avalanche Tests</span>
+              </div>
+              <span class="card-badge badge-rose">Desirable Cryptographic Properties</span>
+            </div>
+
+            <!-- Statistical KPI Tiles -->
+            <div class="metric-grid">
+              <div class="metric-tile">
+                <span class="metric-tile-label">Subgroup Orbit Size</span>
+                <span class="metric-tile-val text-cyan" id="statSampleSize">8 points</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Shannon Entropy H(X)</span>
+                <span class="metric-tile-val text-emerald" id="statShannonX">2.81 bits</span>
+                <span style="font-size:0.7rem; color:#64748b;" id="statMaxEntropy">Max: 4.09 bits</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Shannon Entropy H(Y)</span>
+                <span class="metric-tile-val text-purple" id="statShannonY">2.75 bits</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Pearson Uniformity &chi;²</span>
+                <span class="metric-tile-val text-rose" id="statChiSquareX">X: 18.2</span>
+                <span style="font-size:0.7rem; color:#64748b;" id="statChiSquareY">Y: 24.5</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Avalanche Effect (SAC)</span>
+                <span class="metric-tile-val text-amber" id="statSACVal">51.2%</span>
+                <span style="font-size:0.7rem; color:#64748b;">Target: ~50%</span>
+              </div>
+              <div class="metric-tile">
+                <span class="metric-tile-label">Input-Output Corr (r)</span>
+                <span class="metric-tile-val text-blue" id="statCorrelationVal">r = 0.042</span>
+              </div>
+            </div>
+
+            <!-- Live Charts Grid -->
+            <div class="layout-grid layout-grid-equal" style="margin-top:8px;">
+              <!-- Marginal X Distribution -->
+              <div style="background:#0b1329; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:10px;">
+                <canvas id="histCanvasX" height="130"></canvas>
+              </div>
+              <!-- Marginal Y Distribution -->
+              <div style="background:#0b1329; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:10px;">
+                <canvas id="histCanvasY" height="130"></canvas>
+              </div>
+            </div>
+
+            <div class="layout-grid layout-grid-equal" style="margin-top:8px;">
+              <!-- Bit Frequency per Position -->
+              <div style="background:#0b1329; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:10px;">
+                <canvas id="entropyCanvas" height="150"></canvas>
+              </div>
+              <!-- SAC Avalanche Bar Chart -->
+              <div style="background:#0b1329; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:10px;">
+                <canvas id="sacCanvas" height="150"></canvas>
+              </div>
+            </div>
+
+            <!-- Statistical Interpretation -->
+            <div class="math-box" style="margin-top:12px; font-size:0.8rem; line-height:1.5;">
+              <strong>Key Statistical Findings:</strong><br>
+              &bull; <em>Non-Uniform Y Coordinates:</em> Y-coordinates are restricted to quadratic residues modulo 17. Only 8 out of 16 non-zero values can ever appear as valid Y-coordinates on the curve!<br>
+              &bull; <em>Chi-Square Test (&chi;²):</em> The null hypothesis of uniform distribution across &#120125;&#8321;&#8327; is rejected for Y (<span id="statChiPVal">p &lt; 0.05</span>), proving that pure scalar point multiplication is NOT a uniform random function.<br>
+              &bull; <em>Input-Output Correlation:</em> Pearson r &approx; <span id="pearsonRDisplay">0.0</span>, Spearman &rho; &approx; <span id="spearmanRhoDisplay">0.0</span> indicate strong non-linear pseudorandom scrambling despite algebraic linearity.
+            </div>
+
+          </section>
+
+          <!-- Theoretical Discussion: OWF vs Hash Function -->
+          <section class="card" aria-labelledby="owf-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="owf-title" class="card-title">One-Way Function (OWF) vs Hash Function</h2>
+                <span class="card-subtitle">Theoretical Cryptographic Comparison</span>
+              </div>
+              <span class="card-badge badge-cyan">ECDLP vs Pre-image</span>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>ECC Scalar Multiplication (Q = kG)</th>
+                    <th>Cryptographic Hash Function (Keccak-256)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Mathematical Basis</strong></td>
+                    <td>Abelian group structure over finite fields; hardness of ECDLP.</td>
+                    <td>Permutation-substitution networks (Sponge construction, Merkle-Damg&aring;rd).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Algebraic Structure</strong></td>
+                    <td><strong>Linear Homomorphism:</strong> (k₁ + k₂)G = k₁G + k₂G. Allows digital signatures.</td>
+                    <td><strong>Zero Algebraic Structure:</strong> Strict Avalanche Criterion and confusion/diffusion.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Inversion Complexity</strong></td>
+                    <td>O(&radic;n) via Pollard's rho algorithm; broken by quantum Shor's algorithm.</td>
+                    <td>O(2²⁵⁶) brute force; quantum Grover's algorithm gives O(2¹²⁸).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Output Domain</strong></td>
+                    <td>Group points on elliptic curve E(&#120125;p) (64-byte uncompressed coordinate pair).</td>
+                    <td>Fixed-size bit array (32 bytes = 256 bits). Compresses arbitrary input lengths.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Collision Resistance</strong></td>
+                    <td>Injectivity: 1-to-1 map between scalar k &isin; [1, n-1] and subgroup points.</td>
+                    <td>Many-to-one compression: infinite preimage space mapped to 2²⁵⁶ digests.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Blockchain Research: Modern Cryptography & Statistics -->
+          <section class="card" aria-labelledby="chain-title">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2 id="chain-title" class="card-title">Blockchain Research Survey</h2>
+                <span class="card-subtitle">Modern Applications of Cryptography & Statistics in Top Blockchains</span>
+              </div>
+              <span class="card-badge badge-purple">Survey</span>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Blockchain</th>
+                    <th>Cryptographic Primitives Used</th>
+                    <th>Statistical & Mathematical Methods</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Bitcoin</strong></td>
+                    <td>secp256k1 (ECDSA & Schnorr/Taproot BIP-340), SHA-256d, RIPEMD-160.</td>
+                    <td>Poisson process modeling of mining arrivals, target difficulty retargeting, mempool fee estimation.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Ethereum</strong></td>
+                    <td>secp256k1, Keccak-256, BLS12-381 (beacon chain validator signatures), KZG polynomial commitments.</td>
+                    <td>RANDAO pseudo-random beacon with VDFs, gas fee pricing via EIP-1559 base fee adjustments.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Monero</strong></td>
+                    <td>Ed25519 (Curve25519), RingCT (Ring Signatures), Bulletproofs+ (Zero-Knowledge range proofs).</td>
+                    <td>Statistical output decoy selection (gamma distribution matching transaction spend age distributions).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Zcash</strong></td>
+                    <td>BLS12-381, Jubjub curve, Halo 2 (recursive proof systems without trusted setup), Poseidon hash.</td>
+                    <td>Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge (zk-SNARKs), anonymity set entropy.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Solana</strong></td>
+                    <td>Ed25519, SHA-256 sequential hashing (Proof of History).</td>
+                    <td>High-frequency verifiable delay timestamps, leader slot schedule pseudo-random assignment.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Polkadot</strong></td>
+                    <td>sr25519 (Schnorrkel on Ristretto255), BLS signatures.</td>
+                    <td>BABE verifiable random functions (VRF) for block proposer selection, Phragm&eacute;n election algorithms.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+    </main>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: ACADEMIC REPORTS & THEORY -->
+    <!-- =================================================================== -->
+    <main id="tab-report" class="tab-content">
+      <div class="card" style="max-width:1100px; margin:0 auto;">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2 class="card-title">Module 1 Technical Specification & Formal Paper</h2>
+            <span class="card-subtitle">Public-Key Cryptography — SECP256K1 & Finite Field Arithmetic</span>
+          </div>
+          <span class="card-badge badge-cyan">Full Paper</span>
+        </div>
+
+        <article class="markdown-viewer" id="reportMarkdownContent">
+          <!-- Populated dynamically by app_hw1.js and rendered with KaTeX -->
+        </article>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; max-width:1200px; margin:0 auto; padding-bottom:8px;">
+        <div style="display:flex; gap:16px;">
+          <a href="../" style="color:var(--accent-cyan); text-decoration:none; font-size:0.85rem; font-weight:600;">&larr; Suite Portal Hub</a>
+          <a href="../hw2/" style="color:var(--text-muted); text-decoration:none; font-size:0.85rem;">Go to Homework 2 &rarr;</a>
+        </div>
+        <p style="font-size:0.75rem; color:#475569; margin:0;">
+          Built with Pure Vanilla HTML5, CSS3, & Modern ECMAScript (BigInt, WebCrypto & Web Canvas). Zero external dependencies.
+        </p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="hw1_ecc.js"></script>
+  <script src="app_hw1.js?v=12"></script>
+</body>
+</html>

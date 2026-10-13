@@ -1,55 +1,58 @@
 # Elliptic Curve & Cryptographic Key Derivation Suite
 ## Interactive Engineering Toolkit: Modular ECC & Ethereum Key Derivation
 
-This repository contains the complete, production-grade implementation, interactive visualization application, and technical specifications for Elliptic Curve Cryptography ($y^2 \equiv x^3 + 7 \pmod{17}$, SECP256K1) and the Full Ethereum Wallet Derivation Pipeline.
+This repository contains the complete implementation, interactive visualization laboratories, and technical specifications for Elliptic Curve Cryptography ($y^2 \equiv x^3 + 7 \pmod{17}$, SECP256K1) and the Full Ethereum Wallet Derivation Pipeline.
+
+---
+
+## 🌐 Live GitHub Pages Deployments
+
+The project is organized into an entry hub portal with two completely decoupled submodules:
+
+| Module | Directory | Direct Live Deployment Link |
+|---|---|---|
+| **Homework 1** | `hw1/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/hw1/](https://vincenzominchella.github.io/statistics-crypto-homeworks/hw1/) |
+| **Homework 2** | `hw2/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/hw2/](https://vincenzominchella.github.io/statistics-crypto-homeworks/hw2/) |
+| **Portal Hub** | `/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/](https://vincenzominchella.github.io/statistics-crypto-homeworks/) |
 
 ---
 
 ## 🌟 Highlights & Project Contents
 
-1. **Interactive Web Application (`index.html`, `style.css`, `app.js`, `hw1_ecc.js`, `hw2_wallet.js`, `bip39_wordlist.js`)**:
-   - Zero external npm or build dependencies: pure native HTML5, modern vanilla CSS3 (dark luxury academic theme with glassmorphism), and ECMAScript with `BigInt`, Web Canvas, and WebCrypto APIs.
-   - Works immediately offline by opening `index.html` in any modern web browser or via a local static server.
+### 1. Root Hub Portal (`index.html`, `style.css`)
+- Central landing page with luxury interactive cards linking directly to `./hw1/` and `./hw2/`.
+- Pure native client-side web application with responsive glassmorphism dark aesthetic.
 
-2. **Homework 1: Toy ECC ($y^2 \equiv x^3 + 7 \pmod{17}$) & SECP256K1 Explorer**:
-   - **Scalar Multiplication:** Generates public key $Q = kG$ for base point $G = (1, 5)$ and private key $k = 6$, yielding $Q = (5, 8)$.
-   - **Visual Animation (Plot of the Toy Curve):**
-     - Step-by-step interactive playback with play/pause, step forward/backward, reset, and speed slider.
-     - **Discrete Torus Grid ($\\mathbb{F}_{17} \\times \\mathbb{F}_{17}$):** showing modular wraparound lines, point doubling chords, and vertical reflection across  = (17 - y) \\pmod{17}.\n   - **Double-and-Add vs Naive Addition:** Step-by-step complexity comparison ($O(\log k)$ vs $O(k)$).
-   - **Group Theory Inspector:** Classifies all 18 points of $E(\mathbb{F}_{17})$, orders of all elements, and the order-9 cyclic subgroup $\langle G \rangle$.
-   - **Statistical Exploration Lab:**
-     - Marginal distributions of $X$ and $Y$ coordinates with live canvas histograms.
-     - Quadratic residuosity and why $y$ coordinates cannot be uniformly distributed.
-     - Bit frequency and balance across coordinates (Shannon entropy $H(X)$ vs $\log_2(17)$).
-     - Goodness-of-Fit Pearson's $\chi^2$ test against discrete uniform distribution $U\{0, 16\}$.
-     - Input-Output correlation (Pearson $r$ and Spearman $\rho$).
-     - Strict Avalanche Criterion (SAC) measurement.
-     - Theoretical discussion: One-Way Function (OWF) based on ECDLP vs Cryptographic Hash Function.
-   - **Blockchain Research:** Modern applications of cryptography and statistics in Bitcoin (Schnorr/Taproot, Poisson mining arrivals), Ethereum (Keccak-256, BLS12-381, RANDAO/VDF), Monero/Zcash (zk-SNARKs, Bulletproofs), and Solana/Polkadot (Proof of History, VRF).
+### 2. Homework 1 Standalone Submodule (`hw1/`)
+- **Interactive Web App & Visualizer (`hw1/index.html`, `hw1/app_hw1.js`, `hw1/hw1_ecc.js`)**:
+  - **Scalar Multiplication:** Computes public key $Q = kG$ on Weierstrass toy curve $E(\mathbb{F}_{17}): y^2 \equiv x^3 + 7 \pmod{17}$ with base generator $G = (1, 5)$ and private key $k = 6$, yielding public key $Q = (5, 8)$.
+  - **Finite Field Grid Visualizer:** Step-by-step playback with play/pause, step-by-step stepping, chord lines, tangent slopes, and modular vertical reflection across $y \equiv -y \pmod{17}$.
+  - **Double-and-Add vs Naive Addition:** Step-by-step complexity comparison demonstrating logarithmic $O(\log k)$ performance.
+  - **Group Theory Inspector:** Full 18-point classification, element orders, and generator orbits.
+  - **Empirical Statistics:** Marginal coordinate histograms, quadratic residuosity verification, Shannon bit entropy $H(X)$, Pearson's $\chi^2$ goodness-of-fit test, and Strict Avalanche Criterion (SAC) bit diffusion.
+  - **Blockchain Research:** Modern survey of cryptographic primitives and statistical methods across Bitcoin, Ethereum, Monero, Zcash, Solana, and Polkadot.
+- **Academic Paper (`hw1/Homework1_Report.md`)**: Complete, formal technical report with KaTeX-rendered equations.
 
-3. **Homework 2: From Wallet Seed to Ethereum Address**:
-   - **Live Cryptographic Pipeline:** Real live derivation from BIP-39 mnemonic (12 or 24 words) $\to$ PBKDF2 HMAC-SHA512 (2048 rounds) $\to$ BIP-32 root node $\to$ BIP-44 path (`m/44'/60'/0'/0/0`) $\to$ secp256k1 point multiplication $\to$ Keccak-256 sponge hash $\to$ raw 20-byte address $\to$ EIP-55 mixed-case checksum encoding.
-   - Verified against MetaMask and standard Ian Coleman reference test vectors (`abandon abandon ... about` $\to$ `0x9858EfFD232B4033E47d90003D41EC34EcaEda94`).
-   - **Interactive EIP-55 Inspector:** Tile grid visualizing letter capitalization based on Keccak nibbles $\ge 8$.
-   - **Live Avalanche Lab:** Measure bit diffusion when flipping 1 word or 1 bit in mnemonic.
-   - **Conceptual Matrix:** Precise theoretical distinctions between Key Generation vs Key Derivation, Public-Key Cryptography, Hashing, Checksums, and Encoding.
-   - **Historical Timeline:** Interactive chronological trajectory from RSA (1977) to EIP-55 (2016).
-   - **Technical Deep Dive:** Merkle-Damgård vs Sponge construction, length extension attacks, and why Ethereum's Keccak-256 differs from NIST SHA3-256 (padding `0x01` vs `0x06`).
-   - **System Design Rationale:** Why Ethereum uses a multi-primitive architecture instead of a single algorithm.
-
-4. **Standalone Comprehensive Academic Reports**:
-   - `Homework1_Report.md`: Full 15-page equivalent formal paper for Homework 1.
-   - `Homework2_Report.md`: Full 15-page equivalent formal paper for Homework 2.
+### 3. Homework 2 Standalone Submodule (`hw2/`)
+- **Interactive Web App & Derivation Pipeline (`hw2/index.html`, `hw2/app_hw2.js`, `hw2/hw2_wallet.js`, `hw2/bip39_wordlist.js`)**:
+  - **8-Stage Live Pipeline:** Pure native client-side execution from BIP-39 mnemonic (12 or 24 words) $\to$ PBKDF2 HMAC-SHA512 (2048 iterations) $\to$ BIP-32 root node $\to$ BIP-44 path (`m/44'/60'/0'/0/0`) $\to$ secp256k1 point multiplication $\to$ Keccak-256 sponge hash $\to$ raw 20-byte address $\to$ EIP-55 mixed-case checksum encoding.
+  - Verified against MetaMask and standard Ian Coleman reference test vectors (`abandon abandon ... about` $\to$ `0x9858EfFD232B4033E47d90003D41EC34EcaEda94`).
+  - **Interactive EIP-55 Inspector:** Live character tile grid highlighting capitalization decisions based on Keccak nibbles $\ge 8$.
+  - **Live Pipeline Avalanche Lab:** Bit-diffusion and Hamming distance measurement when mutating 1 word or 1 bit in mnemonic.
+  - **Conceptual Matrix:** Mathematical distinctions between Key Generation vs Key Derivation, Public-Key Cryptography, Hashing, Checksums, and Encoding.
+  - **Historical Timeline:** Interactive chronological trajectory from RSA (1977) to EIP-55 (2016).
+  - **Technical Deep Dive:** Sponge vs Merkle-Damgård, resistance to length extension attacks, and Ethereum Keccak-256 vs NIST SHA3-256 padding difference (`0x01` vs `0x06`).
+- **Academic Paper (`hw2/Homework2_Report.md`)**: Complete, formal technical report with KaTeX-rendered equations.
 
 ---
 
-## 🚀 How to Run the Web Application
+## 🚀 How to Run Locally
 
 ### Option A: Open Directly in Browser
-Simply double-click or open `index.html` in any modern web browser (Chrome, Edge, Firefox, Safari, Brave).
+Open `index.html` (portal), `hw1/index.html` (Module 1), or `hw2/index.html` (Module 2) directly in any modern browser (Chrome, Edge, Firefox, Safari).
 
-### Option B: Run via Local HTTP Server (e.g., Python / Node)
-From the project directory:
+### Option B: Run via Local HTTP Server
+From the project root:
 
 ```bash
 # Using Python
@@ -59,22 +62,38 @@ python -m http.server 8000
 npx serve .
 ```
 
-Then open `http://localhost:8000` in your browser.
+Then navigate to:
+- `http://localhost:8000/` (Landing portal)
+- `http://localhost:8000/hw1/` (Homework 1 standalone)
+- `http://localhost:8000/hw2/` (Homework 2 standalone)
 
 ---
 
 ## 📁 Repository Directory Structure
 
 ```
-├── index.html              # Main application web dashboard
-├── style.css               # Luxury dark academic theme stylesheet
-├── app.js                  # Application coordinator and UI controller
-├── hw1_ecc.js              # ECC finite field math, animation & statistical engine
-├── hw2_wallet.js           # BIP-39, BIP-32, secp256k1, Keccak-256 & EIP-55 pipeline
-├── bip39_wordlist.js       # Standard 2048-word English dictionary
-├── Homework1_Report.md     # Full academic submission paper for Homework 1
-├── Homework2_Report.md     # Full academic submission paper for Homework 2
-└── README.md               # Project documentation and summary
+├── index.html                   # Central landing portal with navigation cards
+├── style.css                    # Design system & dark theme stylesheet
+├── hw1/                         # Standalone Module 1: ECC & Statistics
+│   ├── index.html               # Dedicated Homework 1 page (Lab + Report)
+│   ├── app_hw1.js               # UI coordinator & markdown renderer for HW1
+│   ├── hw1_ecc.js               # ECC math engine & statistical testing suite
+│   ├── style.css                # Scoped stylesheet for HW1
+│   └── Homework1_Report.md      # Full academic report for Homework 1
+├── hw2/                         # Standalone Module 2: HD Wallet Derivation
+│   ├── index.html               # Dedicated Homework 2 page (Pipeline + Report)
+│   ├── app_hw2.js               # UI coordinator & reactive state for HW2
+│   ├── hw2_wallet.js            # BIP-39/32/44, secp256k1 & Keccak-256 engine
+│   ├── bip39_wordlist.js        # Standard 2048-word English dictionary
+│   ├── style.css                # Scoped stylesheet for HW2
+│   └── Homework2_Report.md      # Full academic report for Homework 2
+├── app.js                       # Shared/root coordinator
+├── hw1_ecc.js                   # Root mirror
+├── hw2_wallet.js                # Root mirror
+├── bip39_wordlist.js            # Root mirror
+├── Homework1_Report.md          # Root mirror
+├── Homework2_Report.md          # Root mirror
+└── README.md                    # Project documentation and summary
 ```
 
 ---
@@ -87,8 +106,8 @@ You can verify the calculations at any time using Node.js:
 # Test Homework 2 pipeline against official Ethereum test vector:
 node -e "
 global.window = global;
-require('./bip39_wordlist.js');
-require('./hw2_wallet.js');
+require('./hw2/bip39_wordlist.js');
+require('./hw2/hw2_wallet.js');
 const pipe = new window.EthereumWalletPipeline();
 pipe.deriveFullPipeline('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about')
   .then(res => {
@@ -98,6 +117,7 @@ pipe.deriveFullPipeline('abandon abandon abandon abandon abandon abandon abandon
   });
 "
 ```
+
 Output:
 ```
 Derived Address: 0x9858EfFD232B4033E47d90003D41EC34EcaEda94
