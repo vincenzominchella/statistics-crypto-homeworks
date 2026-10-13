@@ -38,7 +38,13 @@
           targetContent.classList.add('active');
           if (target === 'tab-report') {
             const container = document.getElementById('reportMarkdownContent');
-            if (container) renderMath(container);
+            if (container) {
+              if (!container.dataset.rendered) {
+                initReportViewer();
+              }
+              container.dataset.rendered = 'true';
+    renderMath(container);
+            }
           }
         }
       });
