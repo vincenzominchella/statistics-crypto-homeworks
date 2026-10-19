@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECC vs Caesar Cipher • Cryptographic Schemes &amp; Cryptanalysis Suite</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="brand-badge">
+            <span class="dot"></span> Cryptographic Primitives &amp; Cryptanalysis
+          </div>
+          <span class="meta-tag">secp256k1 &bull; ECDLP &bull; BSGS &bull; Caesar Cipher &bull; &chi;² Frequency Analysis</span>
+        </div>
+        <div>
+          <a href="../" class="btn btn-secondary btn-sm">
+            &larr; Master Hub Portal
+          </a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">
+          Toy ECC vs. The Caesar Cipher
+        </h1>
+        <p class="hero-subtitle">
+          Comparative cryptographic engineering, statistical cryptanalysis, and algebraic discrete logarithm attacks. Analyzing symmetric monoalphabetic substitution against asymmetric Diffie-Hellman masking over restricted and 256-bit elliptic curve scalar fields.
+        </p>
+      </div>
+    </header>
+
+    <!-- Navigation Hub Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tab-btn-lab" data-target="tab-lab">
+        <span>&fnof;(x)</span> Interactive Engineering Lab
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-report" data-target="tab-report">
+        <span>&para;</span> Technical Specification &amp; Formal Paper
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE ENGINEERING LAB -->
+    <!-- ===================================================================== -->
+    <div id="tab-lab" class="tab-pane active">
+
+      <!-- High-Level Metric Stat Cards -->
+      <section class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <span class="stat-label">Caesar Key Space</span>
+          <span class="stat-value" style="color:var(--accent-amber);">26</span>
+          <span class="stat-sub">&approx; 4.70 bits &bull; O(1) Brute Force</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Toy ECC Key Space</span>
+          <span class="stat-value" style="color:var(--accent-cyan);" id="stat-toy-keyspace">65,536</span>
+          <span class="stat-sub">16-bit scalar &bull; BSGS O(&radic;K) &approx; 256 ops</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">secp256k1 Full Key Space</span>
+          <span class="stat-value" style="color:var(--accent-violet);">2<sup>256</sup></span>
+          <span class="stat-sub">&approx; 1.15 &times; 10<sup>77</sup> &bull; Generic O(2<sup>128</sup>)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Caesar Unicity Distance</span>
+          <span class="stat-value" style="color:var(--accent-emerald);">~1.5 - 2.0</span>
+          <span class="stat-sub">Characters to uniquely determine key</span>
+        </div>
+      </section>
+
+      <!-- Message Input & Global Controls -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&equiv;</div>
+            <div>
+              <h2 class="card-title">Shared Plaintext Message Corpus</h2>
+              <p class="card-subtitle">Input text to be encrypted, decrypted, and cryptanalyzed under both paradigms simultaneously.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" id="btn-load-quickbrown">Sample 1: Quick Brown Fox</button>
+            <button class="btn btn-secondary btn-sm" id="btn-load-gettysburg">Sample 2: Classic Corpus</button>
+            <button class="btn btn-secondary btn-sm" id="btn-load-short">Sample 3: Short (N=12)</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-plaintext">
+            <span>Plaintext Text String</span>
+            <span id="label-char-count">Length: 43 characters (A-Z only)</span>
+          </label>
+          <textarea id="input-plaintext" class="form-control form-control-mono" rows="2" style="resize:vertical;">THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG</textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 1: SIDE-BY-SIDE ENCRYPTION & DECRYPTION -->
+      <section class="grid-2">
+
+        <!-- LEFT: CAESAR CIPHER -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon amber">&oplus;</div>
+              <div>
+                <h3 class="card-title">1. The Caesar Cipher</h3>
+                <p class="card-subtitle">Symmetric Monoalphabetic Modular Shift</p>
+              </div>
+            </div>
+            <span class="card-badge badge-amber">Symmetric &bull; Shared Key</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Shift Key k &isin; [0 .. 25]</span>
+              <span id="caesar-shift-badge" class="slider-val-badge">k = 7</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="0" max="25" value="7" class="slider-input" id="slider-caesar-shift" style="accent-color:var(--accent-amber);">
+              <button class="btn btn-secondary btn-sm" id="btn-caesar-random-key">Random Key</button>
+            </div>
+          </div>
+
+          <!-- Mathematical Formula Callout -->
+          <div class="code-box" style="margin-bottom:16px; border-color:rgba(245,158,11,0.3); color:#fbbf24;">
+            <div class="code-box-label">Formal Shift Transformation</div>
+            Encryption: C<sub>i</sub> = (M<sub>i</sub> + k) mod 26 &nbsp;|&nbsp; Decryption: M<sub>i</sub> = (C<sub>i</sub> &minus; k) mod 26
+          </div>
+
+          <!-- Pipeline Stages -->
+          <div class="crypto-pipeline">
+            <div class="pipeline-step">
+              <div class="step-num" style="border-color:var(--accent-amber); color:var(--accent-amber); background:rgba(245,158,11,0.15);">1</div>
+              <div class="step-content">
+                <div class="step-title">Ciphertext Output (C)</div>
+                <div class="code-box" id="caesar-ciphertext-box" style="color:#fbbf24; font-size:0.95rem;">-</div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="step-num" style="border-color:var(--accent-emerald); color:var(--accent-emerald); background:rgba(16,185,129,0.15);">&check;</div>
+              <div class="step-content">
+                <div class="step-title">Decrypted Verification (P)</div>
+                <div class="code-box" id="caesar-decrypted-box" style="color:#34d399; font-size:0.95rem;">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistical Properties Callout -->
+          <div style="margin-top:16px; padding:12px 14px; background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:var(--radius-sm); font-size:0.8rem; color:#cbd5e1;">
+            <strong style="color:#fbbf24;">Statistical Characteristic:</strong> Perfectly preserves letter frequency distribution, bigram transitions, and Index of Coincidence (IoC). Zero entropy diffusion.
+          </div>
+        </article>
+
+        <!-- RIGHT: TOY ECC SCHEME -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon cyan">&fnof;</div>
+              <div>
+                <h3 class="card-title">2. Toy ECC Scheme (secp256k1)</h3>
+                <p class="card-subtitle">Asymmetric Diffie-Hellman Hybrid Keystream</p>
+              </div>
+            </div>
+            <span class="card-badge badge-cyan">Asymmetric &bull; Public Key</span>
+          </div>
+
+          <!-- Controls: Key Range & Regene -->
+          <div class="grid-2" style="margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Key Space Bound (K<sub>max</sub>)</label>
+              <select id="select-ecc-range" class="form-control form-control-mono" style="padding:6px 10px;">
+                <option value="4096">2^12 (4,096)</option>
+                <option value="65535" selected>2^16 (65,535) - Standard Toy</option>
+                <option value="262143">2^18 (262,143)</option>
+                <option value="1048575">2^20 (1,048,575)</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0; justify-content:flex-end;">
+              <label class="form-label">&nbsp;</label>
+              <button class="btn btn-primary btn-sm" id="btn-ecc-regen-keys" style="width:100%;">
+                Generate New Keypair
+              </button>
+            </div>
+          </div>
+
+          <!-- Keys & DH Shared Secret Pipeline -->
+          <div class="crypto-pipeline">
+            <div class="pipeline-step">
+              <div class="step-num">A</div>
+              <div class="step-content">
+                <div class="step-title">Alice Keypair: Private scalar d<sub>A</sub> &amp; Public Point Q<sub>A</sub> = d<sub>A</sub> &middot; G</div>
+                <div class="code-box">
+                  <div><strong>d<sub>A</sub>:</strong> <span id="ecc-alice-priv" class="val-highlight">12345</span> <span style="color:#64748b;">(Restricted &le; K<sub>max</sub>)</span></div>
+                  <div><strong>Q<sub>A</sub>:</strong> <span id="ecc-alice-pub">03...</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="step-num">B</div>
+              <div class="step-content">
+                <div class="step-title">Bob Ephemeral Scalar r &amp; Public Commitment R = r &middot; G</div>
+                <div class="code-box">
+                  <div><strong>r:</strong> <span id="ecc-bob-r" class="val-accent">54321</span> &nbsp;|&nbsp; <strong>R:</strong> <span id="ecc-bob-r-point">02...</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="step-num">S</div>
+              <div class="step-content">
+                <div class="step-title">Shared Secret Point: S = r &middot; Q<sub>A</sub> = d<sub>A</sub> &middot; R</div>
+                <div class="code-box">
+                  <div><strong>S<sub>x</sub>:</strong> <span id="ecc-shared-secret" style="color:#a855f7;">0x...</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="step-num">C</div>
+              <div class="step-content">
+                <div class="step-title">Ciphertext Tuple (R, C) with Derived Keystream K = KDF(S<sub>x</sub>)</div>
+                <div class="code-box" id="ecc-ciphertext-box" style="color:#38bdf8; font-size:0.95rem;">-</div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="step-num" style="border-color:var(--accent-emerald); color:var(--accent-emerald); background:rgba(16,185,129,0.15);">&check;</div>
+              <div class="step-content">
+                <div class="step-title">Alice Decryption: S = d<sub>A</sub> &middot; R &rarr; M<sub>i</sub> = (C<sub>i</sub> &minus; K<sub>i</sub>) mod 26</div>
+                <div class="code-box" id="ecc-decrypted-box" style="color:#34d399; font-size:0.95rem;">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Statistical Properties Callout -->
+          <div style="margin-top:16px; padding:12px 14px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.2); border-radius:var(--radius-sm); font-size:0.8rem; color:#cbd5e1;">
+            <strong style="color:#38bdf8;">Statistical Characteristic:</strong> Destroys all frequency correlation. Keystream derived from elliptic curve scalar multiplication produces uniform pseudorandom diffusion across ciphertext letters.
+          </div>
+        </article>
+      </section>
+
+      <!-- SECTION 2: STATISTICAL CRYPTANALYSIS OF THE CAESAR CIPHER -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon amber">&sum;</div>
+            <div>
+              <h2 class="card-title">Part 2: Statistical Cryptanalysis of the Caesar Cipher</h2>
+              <p class="card-subtitle">Exploiting non-uniform natural language letter distributions via Pearson &chi;² Goodness-of-Fit and Dot-Product Correlation.</p>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="card-badge badge-amber" id="badge-caesar-attack-result">Recovered Key: k = ?</span>
+            <span class="card-badge badge-cyan" id="badge-caesar-ioc">IoC: ?</span>
+          </div>
+        </div>
+
+        <!-- Visual Charts Grid -->
+        <div class="grid-2">
+          
+          <!-- Chart A: Letter Frequency Histogram -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="font-size:0.95rem; color:#fff;">A. Letter Frequency Distribution (A &rarr; Z)</h4>
+              <div style="display:flex; gap:12px; font-size:0.75rem;">
+                <span style="color:#fbbf24;">&FilledSmallSquare; Ciphertext</span>
+                <span style="color:#38bdf8;">&FilledSmallSquare; Plaintext</span>
+                <span style="color:#94a3b8;">&horbar; English Expected</span>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-freq-chart" width="700" height="280"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Notice how the ciphertext profile is an exact cyclic translation of the plaintext profile by shift <span class="val-highlight" id="lbl-shift-display">k</span>.
+            </p>
+          </div>
+
+          <!-- Chart B: Chi-Square Spectrum Across Shifts [0..25] -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="font-size:0.95rem; color:#fff;">B. Pearson &chi;² Goodness-of-Fit Spectrum</h4>
+              <span style="font-size:0.75rem; color:var(--text-dim);">&chi;²(s) = &sum; (O<sub>c</sub> - E<sub>c</sub>)² / E<sub>c</sub></span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-chi2-chart" width="700" height="280"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              The shift key corresponding to the global minimum of the &chi;² metric represents the highest-likelihood decryption key.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Candidate Keys Ranking Table -->
+        <div style="margin-top:20px;">
+          <h4 style="font-size:0.9rem; color:#cbd5e1; margin-bottom:8px;">Top 5 Candidate Decryptions Ranked by &chi;² Statistic:</h4>
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Shift Candidate (s)</th>
+                  <th>Pearson &chi;² Score</th>
+                  <th>Dot Product Correlation</th>
+                  <th>Bigram Match Score</th>
+                  <th>Candidate Plaintext Preview</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-caesar-candidates">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Multi-Length Benchmark Simulator -->
+        <div style="margin-top:28px; padding-top:20px; border-top:1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+            <div>
+              <h3 style="font-size:1.15rem; color:#fff; font-family:var(--font-heading);">
+                Empirical Evaluation: Attack Accuracy vs. Ciphertext Length (N)
+              </h3>
+              <p style="font-size:0.82rem; color:var(--text-muted);">
+                Simulates 50 randomized trials per length across N &isin; [5, 10, 15, 25, 50, 100, 200, 500] characters from a benchmark corpus to demonstrate the Shannon Unicity Distance boundary.
+              </p>
+            </div>
+            <button class="btn btn-amber" id="btn-run-benchmark">
+              <span>&blacktriangleright;</span> Run Live Benchmark Simulation
+            </button>
+          </div>
+
+          <div class="grid-2">
+            <div class="canvas-wrapper">
+              <canvas id="canvas-benchmark-chart" width="700" height="260"></canvas>
+            </div>
+            <div class="comparison-table-wrapper" style="margin-top:0;">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Length (N)</th>
+                    <th>&chi;² Accuracy</th>
+                    <th>Dot Product Acc.</th>
+                    <th>Bigram Acc.</th>
+                    <th>Average &chi;² True</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-benchmark-results">
+                  <tr>
+                    <td colspan="5" style="text-align:center; padding:24px; color:#64748b;">
+                      Click "Run Live Benchmark Simulation" to compute Monte Carlo empirical curves.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SECTION 3: CRYPTANALYSIS OF TOY ECC (RESTRICTED KEY SPACE) -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon violet">&nabla;</div>
+            <div>
+              <h2 class="card-title">Part 3: Cryptanalysis of Toy ECC (Restricted Key Space)</h2>
+              <p class="card-subtitle">Algebraic Discrete Logarithm Attack: Baby-Step Giant-Step (BSGS) in O(&radic;K<sub>max</sub>) vs. Brute-Force O(K<sub>max</sub>).</p>
+            </div>
+          </div>
+          <span class="card-badge badge-purple">ECDLP Algebraic Attack</span>
+        </div>
+
+        <div class="grid-2">
+          
+          <!-- Attack Control Panel -->
+          <div>
+            <div class="stat-card" style="margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="stat-label">Target Public Point (Q<sub>A</sub>)</span>
+                <span class="card-badge badge-cyan">Intercepted by Adversary</span>
+              </div>
+              <div class="code-box" id="attack-target-pub-box" style="margin-top:8px; font-size:0.8rem;">-</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Select Cryptanalytic Algorithm</label>
+              <div style="display:flex; gap:12px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:#cbd5e1; cursor:pointer;">
+                  <input type="radio" name="radio-ecc-attack-method" value="bsgs" checked style="accent-color:var(--accent-violet);">
+                  <strong>Baby-Step Giant-Step</strong> <span style="color:#a855f7;">O(&radic;K<sub>max</sub>)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:#cbd5e1; cursor:pointer;">
+                  <input type="radio" name="radio-ecc-attack-method" value="bruteforce" style="accent-color:var(--accent-amber);">
+                  <strong>Exhaustive Search</strong> <span style="color:#fbbf24;">O(K<sub>max</sub>)</span>
+                </label>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:20px;">
+              <button class="btn btn-accent" id="btn-launch-ecc-attack" style="flex:1;">
+                <span>&lightning;</span> Execute ECDLP Attack
+              </button>
+            </div>
+
+            <!-- Mathematical Attack Principle -->
+            <div style="margin-top:20px; font-size:0.82rem; color:#94a3b8; line-height:1.6;">
+              <p><strong style="color:#fff;">BSGS Mechanism:</strong> Let <span class="math-inline">m = \lceil \sqrt{K_{\max}} \rceil</span>. Write unknown scalar <span class="math-inline">d = i \cdot m + j</span>. Precomputes table <span class="math-inline">Q - jG</span> (<span class="math-inline">0 \le j < m</span>) in memory, then tests giant steps <span class="math-inline">i(mG)</span> until a hash collision occurs, finding <span class="math-inline">d</span> in milliseconds.</p>
+            </div>
+          </div>
+
+          <!-- Attack Execution Console & Plaintext Recovery -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="font-size:0.9rem; color:#fff;">Live Attack Telemetry &amp; Plaintext Recovery</h4>
+              <span id="badge-attack-status" class="card-badge badge-cyan">Idle</span>
+            </div>
+            
+            <div class="attack-console" id="attack-console-output">
+              <div class="log-entry">
+                <span class="log-time">[00:00.000]</span>
+                <span>System ready. Waiting for ECDLP attack initiation...</span>
+              </div>
+            </div>
+
+            <!-- Recovered Plaintext Box -->
+            <div style="margin-top:14px; background:#0b1329; border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-dim); font-weight:700;">Recovered Plaintext (Decrypted via Broken Key)</span>
+                <span id="badge-recovery-match" class="card-badge badge-emerald" style="display:none;">Confidentiality Compromised</span>
+              </div>
+              <div id="attack-recovered-plaintext" class="code-box" style="color:#34d399; font-size:0.95rem;">
+                [Waiting for attack execution]
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- SECTION 4: COMPARATIVE CRYPTOGRAPHIC PARADIGM MATRIX -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">&rlarr;</div>
+            <div>
+              <h2 class="card-title">Part 4: Cryptographic Comparison &amp; Security Feasibility Matrix</h2>
+              <p class="card-subtitle">Exhaustive contrast of mathematical foundations, key spaces, attack classes, and real-world feasibility.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-emerald">Comprehensive Synthesis</span>
+        </div>
+
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Cryptographic Dimension</th>
+                <th>Caesar Cipher</th>
+                <th>Toy ECC Scheme (secp256k1)</th>
+                <th>Standard secp256k1 ECC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="strong">Cryptographic Paradigm</td>
+                <td>Symmetric (Shared Private Shift)</td>
+                <td>Asymmetric (Hybrid DH Masking)</td>
+                <td>Asymmetric (ECDSA, Schnorr, ECIES)</td>
+              </tr>
+              <tr>
+                <td class="strong">Mathematical Group / Domain</td>
+                <td>Additive Group &Zopf;<sub>26</sub></td>
+                <td>Elliptic Curve Group E(&Fopf;<sub>p</sub>), restricted scalar</td>
+                <td>Elliptic Curve Group E(&Fopf;<sub>p</sub>), prime order n</td>
+              </tr>
+              <tr>
+                <td class="strong">Effective Key Space</td>
+                <td>|&Kopf;| = 26 (&approx; 4.70 bits)</td>
+                <td>|&Kopf;| = 2<sup>16</sup> = 65,536 (16 bits)</td>
+                <td>|&Kopf;| &approx; 2<sup>256</sup> (&approx; 1.15 &times; 10<sup>77</sup>)</td>
+              </tr>
+              <tr>
+                <td class="strong">Ciphertext Statistical Diffusion</td>
+                <td><span style="color:#fb7185;">None (Zero Diffusion).</span> Exact copy of plaintext histogram.</td>
+                <td><span style="color:#34d399;">High Pseudorandom Diffusion.</span> Uniform histogram.</td>
+                <td><span style="color:#34d399;">Cryptographic Pseudo-randomness.</span> Indistinguishable from noise.</td>
+              </tr>
+              <tr>
+                <td class="strong">Cryptanalytic Attack Class</td>
+                <td><span style="color:#fbbf24;">Statistical / Frequency Analysis</span> (&chi;², IoC, n-grams)</td>
+                <td><span style="color:#c084fc;">Algebraic Discrete Logarithm</span> (BSGS, Pollard's Rho)</td>
+                <td>Algebraic Generic ECDLP (Infeasible in practice)</td>
+              </tr>
+              <tr>
+                <td class="strong">Attack Complexity</td>
+                <td>O(1) exhaustive or O(N) frequency</td>
+                <td>O(&radic;K<sub>max</sub>) via BSGS (&approx; 256 group ops)</td>
+                <td>O(&radic;n) &approx; O(2<sup>128</sup>) operations</td>
+              </tr>
+              <tr>
+                <td class="strong">Execution Time to Break</td>
+                <td>&lt; 0.1 milliseconds</td>
+                <td>&lt; 15 milliseconds</td>
+                <td>&gt; 10<sup>21</sup> years (All computers on Earth)</td>
+              </tr>
+              <tr>
+                <td class="strong">Weakness Origin</td>
+                <td>Fundamental design flaw (Monoalphabetic linear shift)</td>
+                <td>Artificial parameter restriction (Scalar d &le; K<sub>max</sub>)</td>
+                <td>Quantum Shor's Algorithm O((log n)³) only</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: TECHNICAL SPECIFICATION & FORMAL REPORT -->
+    <!-- ===================================================================== -->
+    <div id="tab-report" class="tab-pane" style="display:none;">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&para;</div>
+            <div>
+              <h2 class="card-title">Technical Specification &amp; Formal Research Paper</h2>
+              <p class="card-subtitle">Peer-review level formal report with mathematical derivations, proofs, algorithmic complexity, and empirical validation.</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-print-report" onclick="window.print()">
+            Print / Export PDF
+          </button>
+        </div>
+
+        <!-- Rendered Report Content -->
+        <div id="report-rendered-markdown" class="report-content">
+          <div style="text-align:center; padding:40px; color:#64748b;">
+            Loading formal report document...
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="ecc_caesar_engine.js?v=3"></script>
+  <script src="app_ecc_caesar.js?v=3"></script>
+</body>
+</html>

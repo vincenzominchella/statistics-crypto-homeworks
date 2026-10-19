@@ -37,11 +37,11 @@
       </div>
     </header>
 
-    <!-- Main 2-Card Portal Grid -->
-    <main class="layout-grid layout-grid-equal" style="gap:28px; margin-bottom:40px;">
+    <!-- Main 3-Card Portal Grid -->
+    <main class="layout-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:24px; margin-bottom:40px;">
 
       <!-- CARD 1: HOMEWORK 1 -->
-      <article class="card" style="padding:30px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#38bdf866'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
+      <article class="card" style="padding:28px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#38bdf866'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
         <div>
           <!-- Header -->
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
@@ -51,44 +51,42 @@
             <span class="card-badge badge-cyan" style="font-size:0.75rem; padding:4px 10px;">Module 1 &bull; ECDLP</span>
           </div>
 
-          <h2 style="font-size:1.45rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
+          <h2 style="font-size:1.35rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
             Homework 1: Public-Key Cryptography &amp; SECP256K1
           </h2>
-          <p style="font-size:0.88rem; color:#94a3b8; line-height:1.55; margin-bottom:20px;">
-            Toy Weierstrass Curve <span class="math-inline">E(&#120125;&#8321;&#8327;): y² &equiv; x³ + 7</span>, generator base point <span class="math-inline">G = (1, 5)</span>, private key <span class="math-inline">k = 6</span>, yielding public key <span class="math-inline">Q = 6G = (5, 8)</span>, and in-depth statistical evaluations desirable for cryptography.
+          <p style="font-size:0.86rem; color:#94a3b8; line-height:1.55; margin-bottom:18px;">
+            Toy Weierstrass Curve <span class="math-inline">E(&#120125;&#8321;&#8327;): y² &equiv; x³ + 7</span>, generator base point <span class="math-inline">G = (1, 5)</span>, private key <span class="math-inline">k = 6</span>, public key <span class="math-inline">Q = 6G = (5, 8)</span>, and statistical evaluations desirable for cryptography.
           </p>
 
           <!-- Key Highlights List -->
-          <ul style="font-size:0.83rem; color:#cbd5e1; line-height:1.7; padding-left:18px; margin-bottom:24px;">
+          <ul style="font-size:0.82rem; color:#cbd5e1; line-height:1.65; padding-left:18px; margin-bottom:20px;">
             <li><strong>Interactive Finite Field Grid:</strong> Step-by-step chord, tangent, and vertical modular reflection on <span class="math-inline">&#120125;&#8321;&#8327; &times; &#120125;&#8321;&#8327;</span>.</li>
-            <li><strong>Double-and-Add vs Naive Addition:</strong> Complexity comparison proving logarithmic <span class="math-inline">O(\log k)</span> scalability for 256-bit scalars.</li>
-            <li><strong>Group Theory Inspector:</strong> Exhaustive enumeration of all 18 group points, element orders, and Hasse bound verification.</li>
-            <li><strong>Statistical Exploration Lab:</strong> Marginal distributions, quadratic residuosity of Y, Shannon bit entropy, Pearson &chi;² test, SAC avalanche diffusion, and correlation metrics.</li>
-            <li><strong>Blockchain Research Survey:</strong> Practical applications across Bitcoin, Ethereum, Monero, Zcash, Solana, and Polkadot.</li>
+            <li><strong>Double-and-Add vs Naive Addition:</strong> Complexity comparison proving logarithmic <span class="math-inline">O(\log k)</span> scalability.</li>
+            <li><strong>Group Theory Inspector:</strong> Exhaustive enumeration of all 18 group points and Hasse bound verification.</li>
+            <li><strong>Statistical Exploration Lab:</strong> Marginal distributions, Shannon entropy, Pearson &chi;² test, and SAC avalanche diffusion.</li>
           </ul>
 
           <!-- Feature Badges -->
-          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:24px;">
-            <span class="card-badge badge-cyan" style="font-size:0.7rem;">y² &equiv; x³ + 7 (mod 17)</span>
-            <span class="card-badge badge-amber" style="font-size:0.7rem;">O(log k) Double-and-Add</span>
-            <span class="card-badge badge-purple" style="font-size:0.7rem;">Subgroup Orbit &langle;G&rangle;</span>
-            <span class="card-badge badge-rose" style="font-size:0.7rem;">Shannon Entropy &amp; &chi;²</span>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">
+            <span class="card-badge badge-cyan" style="font-size:0.68rem;">y² &equiv; x³ + 7 (mod 17)</span>
+            <span class="card-badge badge-amber" style="font-size:0.68rem;">O(log k) Scalability</span>
+            <span class="card-badge badge-rose" style="font-size:0.68rem;">Shannon Entropy &amp; &chi;²</span>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
-          <a href="./hw1/" class="btn btn-primary" style="flex:1; text-align:center; padding:12px 18px; font-weight:700;">
-            Launch Homework 1 &rarr;
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
+          <a href="./hw1/" class="btn btn-primary btn-sm" style="flex:1; text-align:center; padding:10px 14px; font-weight:700;">
+            Launch HW1 &rarr;
           </a>
-          <a href="./hw1/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 14px;">
-            Technical Paper
+          <a href="./hw1/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 12px;">
+            Paper
           </a>
         </div>
       </article>
 
       <!-- CARD 2: HOMEWORK 2 -->
-      <article class="card" style="padding:30px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#a855f766'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
+      <article class="card" style="padding:28px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#a855f766'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
         <div>
           <!-- Header -->
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
@@ -98,38 +96,81 @@
             <span class="card-badge badge-purple" style="font-size:0.75rem; padding:4px 10px;">Module 2 &bull; HD Wallet</span>
           </div>
 
-          <h2 style="font-size:1.45rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
+          <h2 style="font-size:1.35rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
             Homework 2: From Wallet Seed to Ethereum Address
           </h2>
-          <p style="font-size:0.88rem; color:#94a3b8; line-height:1.55; margin-bottom:20px;">
-            Full end-to-end cryptographic pipeline: BIP-39 mnemonic sentence &rarr; PBKDF2 HMAC-SHA512 seed (2048 rounds) &rarr; BIP-32 master node &rarr; BIP-44 path &rarr; secp256k1 &rarr; Keccak-256 &rarr; EIP-55 checksummed address.
+          <p style="font-size:0.86rem; color:#94a3b8; line-height:1.55; margin-bottom:18px;">
+            Full end-to-end cryptographic pipeline: BIP-39 mnemonic &rarr; PBKDF2 HMAC-SHA512 &rarr; BIP-32 node &rarr; BIP-44 path &rarr; secp256k1 &rarr; Keccak-256 &rarr; EIP-55 checksummed address.
           </p>
 
           <!-- Key Highlights List -->
-          <ul style="font-size:0.83rem; color:#cbd5e1; line-height:1.7; padding-left:18px; margin-bottom:24px;">
-            <li><strong>8-Stage Live Pipeline Execution:</strong> Pure native client-side execution from 12/24 words to canonical address, matching official Ethereum test vectors.</li>
-            <li><strong>Interactive EIP-55 Checksum Visualizer:</strong> Live letter grid displaying capitalization thresholds based on Keccak-256 nibbles (&ge; 8).</li>
-            <li><strong>Live Pipeline Avalanche Lab:</strong> 1-word mutation experiment measuring Hamming bit-flip diffusion across every stage.</li>
-            <li><strong>Conceptual Primitives Matrix:</strong> Rigorous distinctions between Key Generation vs Derivation, Public-Key Cryptography, Hashing, Checksums, and Encoding.</li>
-            <li><strong>Historical Timeline (1977 &rarr; 2016):</strong> Chronology from RSA and Koblitz ECC to the Keccak sponge and EIP-55.</li>
+          <ul style="font-size:0.82rem; color:#cbd5e1; line-height:1.65; padding-left:18px; margin-bottom:20px;">
+            <li><strong>8-Stage Live Pipeline Execution:</strong> Pure native execution from 12/24 words matching official test vectors.</li>
+            <li><strong>Interactive EIP-55 Checksum Visualizer:</strong> Live letter grid displaying capitalization thresholds (&ge; 8).</li>
+            <li><strong>Live Pipeline Avalanche Lab:</strong> 1-word mutation experiment measuring Hamming bit-flip diffusion.</li>
+            <li><strong>Conceptual Primitives Matrix:</strong> Key Derivation vs Public-Key Cryptography, Hashing, and Checksums.</li>
           </ul>
 
           <!-- Feature Badges -->
-          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:24px;">
-            <span class="card-badge badge-purple" style="font-size:0.7rem;">BIP-39 &amp; PBKDF2</span>
-            <span class="card-badge badge-cyan" style="font-size:0.7rem;">BIP-32/44 HD Tree</span>
-            <span class="card-badge badge-emerald" style="font-size:0.7rem;">secp256k1 &bull; Keccak-256</span>
-            <span class="card-badge badge-amber" style="font-size:0.7rem;">EIP-55 Mixed-Case</span>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">
+            <span class="card-badge badge-purple" style="font-size:0.68rem;">BIP-39 &amp; PBKDF2</span>
+            <span class="card-badge badge-cyan" style="font-size:0.68rem;">BIP-32/44 HD Tree</span>
+            <span class="card-badge badge-amber" style="font-size:0.68rem;">EIP-55 Mixed-Case</span>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
-          <a href="./hw2/" class="btn btn-accent" style="flex:1; text-align:center; padding:12px 18px; font-weight:700;">
-            Launch Homework 2 &rarr;
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
+          <a href="./hw2/" class="btn btn-accent btn-sm" style="flex:1; text-align:center; padding:10px 14px; font-weight:700;">
+            Launch HW2 &rarr;
           </a>
-          <a href="./hw2/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 14px;">
-            Technical Paper
+          <a href="./hw2/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 12px;">
+            Paper
+          </a>
+        </div>
+      </article>
+
+      <!-- CARD 3: ECC vs CAESAR CIPHER -->
+      <article class="card" style="padding:28px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#10b98166'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
+        <div>
+          <!-- Header -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+            <div style="width:48px; height:48px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#34d399; font-size:1.4rem; font-weight:700;">
+              &rlarr;
+            </div>
+            <span class="card-badge badge-emerald" style="font-size:0.75rem; padding:4px 10px;">Module 3 &bull; Cryptanalysis</span>
+          </div>
+
+          <h2 style="font-size:1.35rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
+            ECC vs. Caesar Cipher &amp; Cryptanalysis Suite
+          </h2>
+          <p style="font-size:0.86rem; color:#94a3b8; line-height:1.55; margin-bottom:18px;">
+            Toy secp256k1 asymmetric scheme with restricted scalar space vs. symmetric Caesar cipher. Statistical Pearson &chi;² goodness-of-fit, frequency correlation, and algebraic Baby-Step Giant-Step (BSGS) ECDLP cryptanalysis.
+          </p>
+
+          <!-- Key Highlights List -->
+          <ul style="font-size:0.82rem; color:#cbd5e1; line-height:1.65; padding-left:18px; margin-bottom:20px;">
+            <li><strong>Side-by-Side Dual Pipeline:</strong> Ephemeral Diffie-Hellman secret exchange &amp; keystream masking vs. classical shift.</li>
+            <li><strong>Caesar Statistical Cryptanalysis:</strong> Live &chi;² goodness-of-fit spectrum, Dot-Product correlation, and Index of Coincidence.</li>
+            <li><strong>Automated Length Benchmark:</strong> Monte Carlo trials across variable lengths ($N \in [5..500]$) proving Shannon unicity distance.</li>
+            <li><strong>Algebraic ECDLP Attack (BSGS):</strong> Inverting $Q = dG$ in $O(\sqrt{K_{\max}})$ steps ($< 15$ ms) and thermodynamic infeasibility of $O(2^{128})$ on full secp256k1.</li>
+          </ul>
+
+          <!-- Feature Badges -->
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">
+            <span class="card-badge badge-emerald" style="font-size:0.68rem;">BSGS O(&radic;K) Attack</span>
+            <span class="card-badge badge-amber" style="font-size:0.68rem;">&chi;² Frequency Analysis</span>
+            <span class="card-badge badge-cyan" style="font-size:0.68rem;">Shannon Unicity Distance</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
+          <a href="./ECCvsCaesarCipher/" class="btn btn-primary btn-sm" style="flex:1; text-align:center; padding:10px 14px; font-weight:700; background:linear-gradient(135deg, #059669 0%, #047857 100%); border-color:#34d399;">
+            Launch Module &rarr;
+          </a>
+          <a href="./ECCvsCaesarCipher/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 12px;">
+            Paper
           </a>
         </div>
       </article>
@@ -157,6 +198,12 @@
           <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Homework 2 Live URL</div>
           <a href="./hw2/" style="font-family:var(--font-mono); font-size:0.85rem; color:#c084fc; text-decoration:none; word-break:break-all;">
             https://vincenzominchella.github.io/statistics-crypto-homeworks/hw2/
+          </a>
+        </div>
+        <div style="background:#0c1322; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px;">
+          <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:4px;">ECC vs Caesar Live URL</div>
+          <a href="./ECCvsCaesarCipher/" style="font-family:var(--font-mono); font-size:0.85rem; color:#34d399; text-decoration:none; word-break:break-all;">
+            https://vincenzominchella.github.io/statistics-crypto-homeworks/ECCvsCaesarCipher/
           </a>
         </div>
       </div>
