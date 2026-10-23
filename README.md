@@ -14,6 +14,7 @@ The project is organized into an entry hub portal with two completely decoupled 
 | **Homework 1** | `hw1/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/hw1/](https://vincenzominchella.github.io/statistics-crypto-homeworks/hw1/) |
 | **Homework 2** | `hw2/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/hw2/](https://vincenzominchella.github.io/statistics-crypto-homeworks/hw2/) |
 | **ECC vs Caesar** | `ECCvsCaesarCipher/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/ECCvsCaesarCipher/](https://vincenzominchella.github.io/statistics-crypto-homeworks/ECCvsCaesarCipher/) |
+| **Homework 3** | `hw3/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/hw3/](https://vincenzominchella.github.io/statistics-crypto-homeworks/hw3/) |
 | **Portal Hub** | `/` | [https://vincenzominchella.github.io/statistics-crypto-homeworks/](https://vincenzominchella.github.io/statistics-crypto-homeworks/) |
 
 ---
@@ -21,7 +22,7 @@ The project is organized into an entry hub portal with two completely decoupled 
 ## 🌟 Highlights & Project Contents
 
 ### 1. Root Hub Portal (`index.html`, `style.css`)
-- Central landing page with luxury interactive cards linking directly to `./hw1/`, `./hw2/`, and `./ECCvsCaesarCipher/`.
+- Central landing page with luxury interactive cards linking directly to `./hw1/`, `./hw2/`, `./ECCvsCaesarCipher/`, and `./hw3/`.
 - Pure native client-side web application with responsive glassmorphism dark aesthetic.
 
 ### 2. Homework 1 Standalone Submodule (`hw1/`)
@@ -54,12 +55,22 @@ The project is organized into an entry hub portal with two completely decoupled 
   - **Thermodynamic Feasibility Analysis:** Physical and informational proof of why generic discrete logarithm attacks require $O(2^{128})$ operations on 256-bit curves, making them impervious to classical cryptanalysis.
 - **Academic Paper (`ECCvsCaesarCipher/Homework_Report.md`)**: Peer-review grade formal specification with proofs, formulas, and protocol security analysis.
 
+### 5. Homework 3 Standalone Submodule (`hw3/`)
+- **Interactive Web App & Stochastic Simulation Suite (`hw3/index.html`, `hw3/app_hw3.js`, `hw3/stochastic_engine.js`)**:
+  - **Multi-Agent Penetration Dynamics:** Models $n$ sequential systems and $m$ attackers using IID increment processes (Bernoulli $X_i \in \{0, 1\}$ and symmetric Rademacher $X_i \in \{-1, +1\}$).
+  - **Three Score Quantities:** Total score $S_n$, Average score $S_n/n$, and Normalized score $S_n/\sqrt{n}$.
+  - **Interactive Trajectory Visualizer:** Live multi-path rendering with theoretical $\pm 1\sigma, \pm 2\sigma$ envelope bands and 3-pane synchronized scaling comparator.
+  - **Law of Large Numbers (LLN):** Real-time convergence in probability of $S_n/n \to \mu$ with tolerance margin $\epsilon$ and Chebyshev variance decay $\sigma^2/n$.
+  - **Central Limit Theorem (CLT):** Histogram density fitting against continuous Gaussian curve $\phi(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}$, Kolmogorov-Smirnov goodness-of-fit, and Normal Q-Q plots.
+  - **Cyber Security Scenario Analysis:** Translates mathematical moments into defense-in-depth metrics and extreme-value attacker swarm breach risks ($\max_j S_n^{(j)} \sim \sqrt{2n \ln m}$).
+- **Academic Paper (`hw3/Homework3_Report.md`)**: Peer-review grade formal specification with characteristic function proofs, Berry-Esseen bounds, and cyber security interpretations.
+
 ---
 
 ## 🚀 How to Run Locally
 
 ### Option A: Open Directly in Browser
-Open `index.html` (portal), `hw1/index.html` (Module 1), `hw2/index.html` (Module 2), or `ECCvsCaesarCipher/index.html` (Module 3) directly in any modern browser.
+Open `index.html` (portal), `hw1/index.html` (Module 1), `hw2/index.html` (Module 2), `ECCvsCaesarCipher/index.html` (Module 3), or `hw3/index.html` (Module 4) directly in any modern browser.
 
 ### Option B: Run via Local HTTP Server
 From the project root:
@@ -77,6 +88,7 @@ Then navigate to:
 - `http://localhost:8000/hw1/` (Homework 1 standalone)
 - `http://localhost:8000/hw2/` (Homework 2 standalone)
 - `http://localhost:8000/ECCvsCaesarCipher/` (ECC vs Caesar Cipher standalone)
+- `http://localhost:8000/hw3/` (Homework 3 standalone)
 
 ---
 
@@ -104,6 +116,12 @@ Then navigate to:
 │   ├── ecc_caesar_engine.js     # Pure BigInt secp256k1 math, Caesar & BSGS engine
 │   ├── style.css                # Scoped stylesheet for Module 3
 │   └── Homework_Report.md       # Peer-review formal paper with KaTeX formulas
+├── hw3/                         # Standalone Module 4: Stochastic Penetration & Limit Theorems
+│   ├── index.html               # Dedicated Homework 3 page (Lab + Formal Report)
+│   ├── app_hw3.js               # UI coordinator, Canvas multi-path & CLT renderers
+│   ├── stochastic_engine.js     # Bernoulli, Rademacher, LLN, CLT & moments engine
+│   ├── style.css                # Scoped stylesheet for HW3
+│   └── Homework3_Report.md      # Full academic report with KaTeX proofs
 └── README.md                    # Project documentation and summary
 ```
 
