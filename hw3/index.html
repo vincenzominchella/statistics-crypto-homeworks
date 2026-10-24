@@ -41,7 +41,7 @@
           Stochastic Penetration Dynamics: LLN, CLT &amp; Trajectory Scaling
         </h1>
         <p class="hero-subtitle">
-          Modeling multi-agent penetration processes across $n$ systems and $m$ attackers via IID Bernoulli and Rademacher increments. Investigating the asymptotic behavior, variance scaling, Law of Large Numbers convergence in probability, and Central Limit Theorem Gaussian distribution.
+          Modeling multi-agent penetration processes across <em>n</em> systems and <em>m</em> attackers via IID Bernoulli and Rademacher increments. Investigating the asymptotic behavior, variance scaling, Law of Large Numbers convergence in probability, and Central Limit Theorem Gaussian distribution.
         </p>
       </div>
     </header>
@@ -92,7 +92,7 @@
             <div class="card-icon cyan">&Sigma;</div>
             <div>
               <h2 class="card-title">Stochastic Model &amp; Simulation Parameters</h2>
-              <p class="card-subtitle">Configure increment distributions, system depth $n$, and attacker ensemble $m$.</p>
+              <p class="card-subtitle">Configure increment distributions, system depth <em>n</em>, and attacker ensemble <em>m</em>.</p>
             </div>
           </div>
           <!-- Preset Buttons -->
@@ -175,7 +175,7 @@
             <div class="card-icon emerald">&sim;</div>
             <div>
               <h2 class="card-title">Part 1: Sample Path Trajectories &amp; Normalization Comparison</h2>
-              <p class="card-subtitle">Examine the evolution of Total Score ($S_k$), Average Score ($S_k/k$), and Normalized Score ($S_k/\sqrt{k}$).</p>
+              <p class="card-subtitle">Examine the evolution of Total Score (<em>S<sub>k</sub></em>), Average Score (<em>S<sub>k</sub>/k</em>), and Normalized Score (<em>S<sub>k</sub>/&radic;k</em>).</p>
             </div>
           </div>
           <span class="card-badge badge-cyan" id="badge-rendered-paths">Rendered: 35 / 200 Paths</span>
@@ -220,9 +220,9 @@
 
         <!-- Dynamics Explanation Callout -->
         <div style="margin-top:16px; padding:12px 16px; background:#0b1329; border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.82rem; color:#cbd5e1; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-          <div><strong style="color:#fbbf24;">S<sub>k</sub> (Total):</strong> Diffusive expansion, spread grows as $O(\sqrt{k})$.</div>
-          <div><strong style="color:#38bdf8;">S<sub>k</sub>/k (Average):</strong> Funnels into expectation $\mu$, variance collapses as $O(1/k)$ (Weak &amp; Strong LLN).</div>
-          <div><strong style="color:#34d399;">S<sub>k</sub>/&radic;k (Normalized):</strong> Invariant variance $O(1)$, converges to Gaussian bell curve $\mathcal{N}(0, 1)$ (CLT).</div>
+          <div><strong style="color:#fbbf24;">S<sub>k</sub> (Total):</strong> Diffusive expansion, spread grows as <em>O(&radic;k)</em>.</div>
+          <div><strong style="color:#38bdf8;">S<sub>k</sub>/k (Average):</strong> Funnels into expectation &mu;, variance collapses as <em>O(1/k)</em> (Weak &amp; Strong LLN).</div>
+          <div><strong style="color:#34d399;">S<sub>k</sub>/&radic;k (Normalized):</strong> Invariant variance <em>O(1)</em>, converges to Gaussian distribution <em>&Nscr;(0, 1)</em> (CLT).</div>
         </div>
       </section>
 
@@ -233,7 +233,7 @@
             <div class="card-icon violet">&int;</div>
             <div>
               <h2 class="card-title">Part 2: Empirical Distribution at Horizon n vs. Theoretical Gaussian</h2>
-              <p class="card-subtitle">Verifying the Central Limit Theorem: Normalized sum $S_n/\sqrt{n}$ approaches the standard normal distribution $\mathcal{N}(0, 1)$.</p>
+              <p class="card-subtitle">Verifying the Central Limit Theorem: Normalized sum <em>S<sub>n</sub>/&radic;n</em> approaches the standard normal distribution <em>&Nscr;(0, 1)</em>.</p>
             </div>
           </div>
           <div style="display:flex; gap:8px;">
@@ -257,7 +257,7 @@
               <canvas id="canvas-clt-histogram" width="600" height="300"></canvas>
             </div>
             <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
-              Relative frequency density of the $m$ attacker endpoints normalized as $S_n/\sqrt{n}$, fitted against the continuous theoretical Gaussian $\frac{1}{\sqrt{2\pi}} e^{-z^2/2}$.
+              Relative frequency density of the <em>m</em> attacker endpoints normalized as <em>S<sub>n</sub>/&radic;n</em>, fitted against the continuous theoretical Gaussian bell curve.
             </p>
           </div>
 
@@ -271,7 +271,7 @@
               <canvas id="canvas-qq-plot" width="600" height="300"></canvas>
             </div>
             <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
-              Points falling on the red $45^\circ$ diagonal line confirm that the empirical normalized score distribution matches a Gaussian distribution.
+              Points falling on the red 45&deg; diagonal reference line confirm that the empirical normalized score distribution matches a Gaussian distribution.
             </p>
           </div>
 
@@ -310,7 +310,7 @@
             <div class="card-icon cyan">&prop;</div>
             <div>
               <h2 class="card-title">Part 3: Law of Large Numbers Convergence in Probability</h2>
-              <p class="card-subtitle">Evaluating the probability that average penetration rate $S_n/n$ stays within an $\epsilon$-band of theoretical mean $\mu$.</p>
+              <p class="card-subtitle">Evaluating the probability that average penetration rate <em>S<sub>n</sub>/n</em> stays within an &epsilon;-corridor of theoretical mean &mu;.</p>
             </div>
           </div>
           <span class="card-badge badge-cyan" id="badge-lln-prob">P(|S_n/n - &mu;| &lt; &epsilon;) = ?</span>
@@ -329,26 +329,64 @@
               </div>
             </div>
 
+            <!-- Live Compliance Meter Container -->
+            <div style="margin-top:16px; background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:0.75rem; text-transform:uppercase; color:#94a3b8; font-weight:700; letter-spacing:0.05em;">Empirical Ensemble Compliance</span>
+                <span id="lln-meter-pct" style="font-size:0.9rem; font-family:var(--font-mono); color:#38bdf8; font-weight:700;">85.0%</span>
+              </div>
+              <div style="width:100%; height:10px; background:#1e293b; border-radius:999px; overflow:hidden; position:relative;">
+                <div id="lln-meter-bar" style="height:100%; width:85%; background:linear-gradient(90deg, #38bdf8 0%, #34d399 100%); border-radius:999px; transition:width 0.15s ease;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.72rem; color:#64748b; font-family:var(--font-mono);">
+                <span id="lln-meter-count">170 / 200 paths within [&mu; &minus; &epsilon;, &mu; + &epsilon;]</span>
+                <span id="lln-meter-cheb">Chebyshev: &ge; 40.0%</span>
+              </div>
+              
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; border-top:1px solid #1e293b; padding-top:10px;">
+                <div>
+                  <div style="font-size:0.68rem; color:#64748b; text-transform:uppercase;">Tolerance Band [&mu; &plusmn; &epsilon;]</div>
+                  <div id="lln-stat-interval" style="font-size:0.8rem; font-family:var(--font-mono); color:#cbd5e1; font-weight:600;">[0.450, 0.550]</div>
+                </div>
+                <div>
+                  <div style="font-size:0.68rem; color:#64748b; text-transform:uppercase;">Critical Horizon (95%)</div>
+                  <div id="lln-stat-k95" style="font-size:0.8rem; font-family:var(--font-mono); color:#c084fc; font-weight:600;">k &ge; 2,000</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Mathematical Formulation Callout -->
             <div class="code-box" style="margin-top:16px;">
               <div class="code-box-label">Weak Law of Large Numbers (WLLN)</div>
               &forall;&epsilon; &gt; 0, &nbsp; lim<sub>n &rarr; &infin;</sub> &Popf;(|S<sub>n</sub>/n &minus; &mu;| &ge; &epsilon;) = 0
               <div style="margin-top:8px; color:#cbd5e1;">
-                <strong>Chebyshev's Upper Bound:</strong> &Popf;(|S<sub>n</sub>/n &minus; &mu;| &ge; &epsilon;) &le; &sigma;&sup2; / (n &middot; &epsilon;&sup2;)
+                <strong>Chebyshev Lower Bound:</strong> &Popf;(|S<sub>n</sub>/n &minus; &mu;| &lt; &epsilon;) &ge; 1 &minus; &sigma;&sup2; / (n &middot; &epsilon;&sup2;)
               </div>
             </div>
 
-            <div style="margin-top:16px; font-size:0.85rem; color:#94a3b8; line-height:1.6;">
-              <p>As system defense depth $n$ increases, the probability mass concentrates entirely in the interval $[\mu - \epsilon, \mu + \epsilon]$. The empirical average score becomes practically deterministic.</p>
+            <div style="margin-top:14px; font-size:0.82rem; color:#94a3b8; line-height:1.5;">
+              <p>As system defense depth <em>n</em> increases, the probability mass concentrates entirely in the interval [&mu; &minus; &epsilon;, &mu; + &epsilon;]. The empirical average score becomes practically deterministic.</p>
             </div>
           </div>
 
           <div>
+            <!-- Canvas View Selector Tabs -->
+            <div style="display:flex; justify-content:flex-start; align-items:center; margin-bottom:10px;">
+              <div class="view-tabs" style="margin-bottom:0; width:100%; display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                <button class="lln-tab-btn active" id="btn-lln-mode-prob" data-lln-mode="probability" style="padding:7px 10px; font-size:0.76rem; white-space:nowrap;">
+                  <span>&bull;</span> Probability &Popf;(|S<sub>k</sub>/k &minus; &mu;| &lt; &epsilon;)
+                </button>
+                <button class="lln-tab-btn" id="btn-lln-mode-var" data-lln-mode="variance" style="padding:7px 10px; font-size:0.76rem; white-space:nowrap;">
+                  <span>&bull;</span> Variance Decay &sigma;&sup2;/k
+                </button>
+              </div>
+            </div>
+
             <div class="canvas-wrapper">
               <canvas id="canvas-lln-variance-decay" width="600" height="260"></canvas>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
-              Variance decay curve $\text{Var}(S_k/k) = \sigma^2/k$ as step index $k$ advances from $1$ to $n$, illustrating rapid asymptotic stabilization.
+            <p id="lln-canvas-caption" style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Convergence probability curve &Popf;(|S<sub>k</sub>/k &minus; &mu;| &lt; &epsilon;) as step index <em>k</em> advances from 1 to <em>n</em>, bounded below by Chebyshev's inequality.
             </p>
           </div>
 
@@ -405,19 +443,19 @@
               <tr>
                 <td class="strong">Bernoulli Increments X<sub>i</sub> &isin; {0, 1}</td>
                 <td>Cumulative breach count. Each node breached (+1) or resisted (0).</td>
-                <td>Total breaches diverge as $np$; average breach rate converges to $p$.</td>
+                <td>Total breaches diverge as <em>n &middot; p</em>; average breach rate converges to <em>p</em>.</td>
                 <td>Sample variance stabilizes; distribution follows Binomial &rarr; Gaussian.</td>
               </tr>
               <tr>
                 <td class="strong">Rademacher Increments X<sub>i</sub> &isin; {-1, +1}</td>
                 <td>Dynamic defense-attacker competition (+1 exploit, -1 automated quarantine).</td>
-                <td>Balanced zero-mean walk; random excursions scale with $\sqrt{n}$.</td>
-                <td>Empirical endpoint density converges cleanly to standard normal $\mathcal{N}(0, 1)$.</td>
+                <td>Balanced zero-mean walk; random excursions scale with <em>&radic;n</em>.</td>
+                <td>Empirical endpoint density converges cleanly to standard normal <em>&Nscr;(0, 1)</em>.</td>
               </tr>
               <tr>
                 <td class="strong">Worst-Case Penetration Outlier max<sub>j</sub> S<sub>n</sub><sup>(j)</sup></td>
-                <td>The "Adversary Swarm Advantage". Even if mean $\mu = 0$, outliers breach deep.</td>
-                <td>Worst-case breach depth scales as $\sqrt{2n \ln m}$ by extreme value theory.</td>
+                <td>The &ldquo;Adversary Swarm Advantage&rdquo;. Even if mean &mu; = 0, outliers breach deep.</td>
+                <td>Worst-case breach depth scales as <em>&radic;(2n ln m)</em> by extreme value theory.</td>
                 <td>More attackers increase the probability of at least one catastrophic breach.</td>
               </tr>
             </tbody>

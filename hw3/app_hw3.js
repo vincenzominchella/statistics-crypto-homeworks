@@ -15,6 +15,7 @@
     p: 0.50,
     viewMode: 'total',       // 'total', 'average', 'normalized', 'synced'
     epsilon: 0.05,
+    llnCanvasMode: 'probability', // 'probability' or 'variance'
     simResult: null,
     cltResult: null,
     llnResult: null,
@@ -51,7 +52,7 @@
     elements.btnPresetDeep = document.getElementById('btn-preset-deep');
 
     // View Tabs & Containers
-    elements.viewTabBtns = document.querySelectorAll('.view-tab-btn');
+    elements.viewTabBtns = document.querySelectorAll('.view-tab-btn[data-view]');
     elements.containerSingleCanvas = document.getElementById('container-single-canvas');
     elements.containerSyncedCanvas = document.getElementById('container-synced-canvas');
 
@@ -75,6 +76,17 @@
     elements.badgeLlnProb = document.getElementById('badge-lln-prob');
     elements.tbodyMomentsComparison = document.getElementById('tbody-moments-comparison');
 
+    // Part 3 Compliance Meter & View Mode Elements
+    elements.llnMeterBar = document.getElementById('lln-meter-bar');
+    elements.llnMeterPct = document.getElementById('lln-meter-pct');
+    elements.llnMeterCount = document.getElementById('lln-meter-count');
+    elements.llnMeterCheb = document.getElementById('lln-meter-cheb');
+    elements.llnStatInterval = document.getElementById('lln-stat-interval');
+    elements.llnStatK95 = document.getElementById('lln-stat-k95');
+    elements.llnCanvasCaption = document.getElementById('lln-canvas-caption');
+    elements.btnLlnModeProb = document.getElementById('btn-lln-mode-prob');
+    elements.btnLlnModeVar = document.getElementById('btn-lln-mode-var');
+
     // Security stat cards
     elements.secStatN = document.getElementById('sec-stat-n');
     elements.secStatM = document.getElementById('sec-stat-m');
@@ -92,6 +104,19 @@
     setupEventListeners();
     runFullSimulation();
     loadReportMarkdown();
+
+    // Auto-render any mathematical expressions across the entire document
+    if (typeof renderMathInElement !== 'undefined') {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true }
+        ],
+        throwOnError: false
+      });
+    }
   }
 
   function setupEventListeners() {
@@ -131,11 +156,41 @@
       runFullSimulation();
     });
 
+    // Tolerance Margin (Epsilon) Slider - Real-Time Dynamic Updates
     elements.sliderEpsilon.addEventListener('input', (e) => {
       state.epsilon = parseFloat(e.target.value);
       elements.badgeEpsilonVal.textContent = `ε = ${state.epsilon.toFixed(2)}`;
       updateLlnSection();
+      // If user is viewing Average Score trajectories, redraw immediately to animate the tolerance corridor!
+      if (state.viewMode === 'average' || state.viewMode === 'synced') {
+        updateTrajectoryView();
+      }
     });
+
+    // Part 3 Canvas View Mode Switcher
+    if (elements.btnLlnModeProb) {
+      elements.btnLlnModeProb.addEventListener('click', () => {
+        state.llnCanvasMode = 'probability';
+        elements.btnLlnModeProb.classList.add('active');
+        if (elements.btnLlnModeVar) elements.btnLlnModeVar.classList.remove('active');
+        if (elements.llnCanvasCaption) {
+          elements.llnCanvasCaption.innerHTML = `Convergence probability curve &Popf;(|S<sub>k</sub>/k &minus; &mu;| &lt; &epsilon;) as step index <em>k</em> advances from 1 to <em>n</em>, bounded below by Chebyshev's inequality.`;
+        }
+        drawLlnSectionCanvas();
+      });
+    }
+
+    if (elements.btnLlnModeVar) {
+      elements.btnLlnModeVar.addEventListener('click', () => {
+        state.llnCanvasMode = 'variance';
+        elements.btnLlnModeVar.classList.add('active');
+        if (elements.btnLlnModeProb) elements.btnLlnModeProb.classList.remove('active');
+        if (elements.llnCanvasCaption) {
+          elements.llnCanvasCaption.innerHTML = `Variance decay curve Var(S<sub>k</sub>/k) = &sigma;&sup2;/k as step index <em>k</em> advances from 1 to <em>n</em>, illustrating rapid asymptotic stabilization.`;
+        }
+        drawLlnSectionCanvas();
+      });
+    }
 
     // Presets
     elements.btnPresetSmall.addEventListener('click', () => {
@@ -320,12 +375,38 @@
 
   function updateLlnSection() {
     state.llnResult = StochasticEngine.evaluateLlnConvergence(state.simResult, state.epsilon);
-    const { empiricalProbWithin, chebyshevBound, epsilon, mu, n } = state.llnResult;
+    const { empiricalProbWithin, chebyshevLowerBound, withinCount, m, criticalN95, epsilon, mu, n } = state.llnResult;
 
-    elements.badgeLlnProb.textContent = `P(|S_n/n - ${mu.toFixed(2)}| < ${epsilon.toFixed(2)}) = ${(empiricalProbWithin * 100).toFixed(1)}%`;
-    elements.badgeLlnProb.className = empiricalProbWithin > 0.85 ? 'card-badge badge-emerald' : 'card-badge badge-amber';
+    const pct = (empiricalProbWithin * 100).toFixed(1);
+    const chebPct = (chebyshevLowerBound * 100).toFixed(1);
 
-    drawLlnDecayChart();
+    elements.badgeLlnProb.textContent = `P(|S_n/n - ${mu.toFixed(2)}| < ${epsilon.toFixed(2)}) = ${pct}%`;
+    elements.badgeLlnProb.className = empiricalProbWithin >= 0.85 ? 'card-badge badge-emerald' : 'card-badge badge-cyan';
+
+    if (elements.llnMeterBar) elements.llnMeterBar.style.width = `${pct}%`;
+    if (elements.llnMeterPct) elements.llnMeterPct.textContent = `${pct}%`;
+    if (elements.llnMeterCount) {
+      elements.llnMeterCount.textContent = `${withinCount} / ${m} paths within [${(mu - epsilon).toFixed(2)}, ${(mu + epsilon).toFixed(2)}]`;
+    }
+    if (elements.llnMeterCheb) {
+      elements.llnMeterCheb.textContent = `Chebyshev: ≥ ${chebPct}%`;
+    }
+    if (elements.llnStatInterval) {
+      elements.llnStatInterval.textContent = `[${(mu - epsilon).toFixed(3)}, ${(mu + epsilon).toFixed(3)}]`;
+    }
+    if (elements.llnStatK95) {
+      elements.llnStatK95.textContent = criticalN95 > 1e6 ? '> 1,000,000' : `k ≥ ${criticalN95.toLocaleString()}`;
+    }
+
+    drawLlnSectionCanvas();
+  }
+
+  function drawLlnSectionCanvas() {
+    if (state.llnCanvasMode === 'variance') {
+      drawLlnDecayChart();
+    } else {
+      drawLlnProbabilityConvergence();
+    }
   }
 
   function updateCyberSecuritySection() {
@@ -353,7 +434,7 @@
     updateTrajectoryView();
     drawCltHistogram();
     drawQqPlot();
-    drawLlnDecayChart();
+    drawLlnSectionCanvas();
   }
 
   function updateTrajectoryView() {
@@ -501,6 +582,44 @@
       }
       ctx.closePath();
       ctx.fill();
+    }
+
+    // Draw Law of Large Numbers epsilon tolerance corridor if viewing average score
+    if (mode === 'average' && state.epsilon !== undefined) {
+      const eps = state.epsilon;
+      const mu = theoretical.mu;
+      const yUpper = getY(mu + eps);
+      const yLower = getY(mu - eps);
+
+      // Shaded corridor band
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.fillRect(padLeft, yUpper, chartW, yLower - yUpper);
+
+      // Boundary dashed lines
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+
+      ctx.beginPath();
+      ctx.moveTo(padLeft, yUpper);
+      ctx.lineTo(padLeft + chartW, yUpper);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(padLeft, yLower);
+      ctx.lineTo(padLeft + chartW, yLower);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+
+      // Corridor labels
+      if (!isCompact) {
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '9px Fira Code, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(`+ε (${(mu + eps).toFixed(2)})`, padLeft + chartW - 6, yUpper - 4);
+        ctx.fillText(`-ε (${(mu - eps).toFixed(2)})`, padLeft + chartW - 6, yLower + 12);
+      }
     }
 
     // Draw individual sample paths
@@ -749,6 +868,158 @@
     ctx.font = '10px Inter, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Normal Reference Line (y = x)', padLeft + 26, padTop - 11);
+  }
+
+  /**
+   * Draws Law of Large Numbers Convergence in Probability: P(|S_k/k - mu| < epsilon) vs k
+   * Displays Empirical Ensemble Frequency, Central Limit Theorem Asymptotic Normal Curve,
+   * Chebyshev Analytical Lower Bound, and 100% Asymptotic Horizon.
+   */
+  function drawLlnProbabilityConvergence() {
+    const canvas = elements.canvasLlnVarianceDecay;
+    if (!canvas || !canvas.getContext || !state.llnResult) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const { epsilon, mu, n, empiricalProbWithin, chebyshevLowerBound, curve } = state.llnResult;
+    const steps = curve.steps;
+    const probs = curve.empiricalProbs;
+    const chebs = curve.chebyshevBounds;
+    const norms = curve.normalApproximations;
+
+    const padLeft = 48;
+    const padRight = 20;
+    const padTop = 26;
+    const padBottom = 34;
+    const chartW = w - padLeft - padRight;
+    const chartH = h - padTop - padBottom;
+
+    function getX(k) {
+      return padLeft + (k / n) * chartW;
+    }
+    function getY(p) {
+      const clampedP = Math.max(0, Math.min(1.05, p));
+      return padTop + chartH - clampedP * chartH;
+    }
+
+    // Horizontal Grid Lines & Y-Axis Labels (0%, 25%, 50%, 75%, 100%)
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    const yLevels = [0, 0.25, 0.5, 0.75, 1.0];
+    for (let lvl of yLevels) {
+      const y = getY(lvl);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(padLeft + chartW, y);
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px Fira Code, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${Math.round(lvl * 100)}%`, padLeft - 6, y + 3);
+    }
+
+    // X-Axis Ticks & Labels
+    const xTicks = 4;
+    for (let i = 0; i <= xTicks; i++) {
+      const kVal = Math.floor((i / xTicks) * n);
+      const x = getX(kVal);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px Fira Code, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`k=${kVal}`, x, h - 10);
+    }
+
+    // 100% Asymptotic Horizon Line (Emerald Dashed)
+    const y100 = getY(1.0);
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padLeft, y100);
+    ctx.lineTo(padLeft + chartW, y100);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 1. Chebyshev Analytical Lower Bound: max(0, 1 - sigma^2 / (k * eps^2)) (Amber Dashed)
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < steps.length; i++) {
+      const x = getX(steps[i]);
+      const y = getY(chebs[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. CLT Normal Asymptotic Approximation (Emerald Dashed)
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    for (let i = 0; i < steps.length; i++) {
+      const x = getX(steps[i]);
+      const y = getY(norms[i]);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. Empirical Probability Curve Area Fill (Soft Cyan Gradient)
+    if (steps.length > 0) {
+      const grad = ctx.createLinearGradient(0, padTop, 0, padTop + chartH);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.02)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(getX(steps[0]), getY(0));
+      for (let i = 0; i < steps.length; i++) {
+        ctx.lineTo(getX(steps[i]), getY(probs[i]));
+      }
+      ctx.lineTo(getX(steps[steps.length - 1]), getY(0));
+      ctx.closePath();
+      ctx.fill();
+
+      // 4. Empirical Probability Line (Cyan Solid with high contrast)
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let i = 0; i < steps.length; i++) {
+        const x = getX(steps[i]);
+        const y = getY(probs[i]);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // Canvas Legend
+    // Empirical Swatch
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(padLeft + 4, padTop - 16, 10, 3);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Empirical at n: ${(empiricalProbWithin * 100).toFixed(1)}%`, padLeft + 18, padTop - 13);
+
+    // CLT Swatch
+    const finalNormPct = norms.length > 0 ? (norms[norms.length - 1] * 100).toFixed(1) : '100.0';
+    ctx.fillStyle = '#34d399';
+    ctx.fillRect(padLeft + 175, padTop - 16, 10, 3);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText(`CLT Normal (${finalNormPct}%)`, padLeft + 189, padTop - 13);
+
+    // Chebyshev Swatch
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(padLeft + 335, padTop - 16, 10, 3);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText(`Chebyshev Bound (≥ ${(chebyshevLowerBound * 100).toFixed(1)}%)`, padLeft + 349, padTop - 13);
   }
 
   /**

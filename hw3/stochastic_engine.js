@@ -197,6 +197,9 @@
     // We downsample steps if n is very large to avoid excessive memory
     const envelopeStep = Math.max(1, Math.floor(n / 250));
     const envelopeSteps = [];
+    const checkpointSteps = [];
+    const checkpointAverages = []; // Array of Float32Array(m) for dynamic LLN convergence curve
+
     const envelope = {
       meanTotal: [],
       varTotal: [],
@@ -230,9 +233,18 @@
         }
       }
 
-      // Record envelope statistics at downsampled intervals or final step
+      // Record envelope statistics and ensemble snapshots at downsampled intervals or final step
       if (step % envelopeStep === 0 || step === n) {
         envelopeSteps.push(step);
+        checkpointSteps.push(step);
+
+        // Snapshot of average scores across all m paths at step k for LLN curve
+        const stepAvgSnapshot = new Float32Array(m);
+        for (let j = 0; j < m; j++) {
+          stepAvgSnapshot[j] = currentSn[j] * invStep;
+        }
+        checkpointAverages.push(stepAvgSnapshot);
+
         let sumS = 0;
         let sumS2 = 0;
         let sumAvg = 0;
@@ -330,6 +342,10 @@
         steps: envelopeSteps,
         ...envelope
       },
+      checkpointData: {
+        steps: checkpointSteps,
+        averages: checkpointAverages
+      },
       elapsedMs
     };
   }
@@ -340,15 +356,17 @@
 
   /**
    * Analyzes Law of Large Numbers (LLN) convergence:
-   * Computes P(|S_n/n - mu| < epsilon) and Chebyshev upper bound.
+   * Computes P(|S_n/n - mu| < epsilon), step-by-step empirical compliance curve,
+   * Chebyshev analytical lower/upper bounds, and CLT normal approximation curve.
    */
   function evaluateLlnConvergence(simulationResult, epsilon = 0.05) {
-    const { finalEndpoints, theoretical, config } = simulationResult;
+    const { finalEndpoints, theoretical, config, checkpointData } = simulationResult;
     const averages = finalEndpoints.average;
     const mu = theoretical.mu;
     const n = config.n;
     const m = config.m;
     const varSingle = theoretical.variance;
+    const stdSingle = theoretical.std;
 
     let withinCount = 0;
     for (let i = 0; i < m; i++) {
@@ -361,16 +379,60 @@
     const empiricalProbOutside = 1 - empiricalProbWithin;
 
     // Chebyshev Bound: P(|X_bar - mu| >= eps) <= Var(X) / (n * eps^2)
-    const chebyshevBound = Math.min(1.0, varSingle / (n * epsilon * epsilon));
+    const chebyshevUpperBound = Math.min(1.0, varSingle / (n * epsilon * epsilon));
+    const chebyshevLowerBound = Math.max(0.0, 1.0 - (varSingle / (n * epsilon * epsilon)));
+
+    // Critical horizon n for 95% guaranteed confidence by Chebyshev:
+    // 1 - Var(X) / (n * eps^2) >= 0.95  =>  n >= Var(X) / (0.05 * eps^2)
+    const criticalN95 = Math.ceil(varSingle / (0.05 * epsilon * epsilon));
+
+    // Dynamic step-by-step LLN convergence curve across checkpoints
+    const steps = (checkpointData && checkpointData.steps && checkpointData.steps.length > 0)
+      ? checkpointData.steps
+      : [n];
+    const stepProbs = [];
+    const stepChebyshev = [];
+    const stepNormalApprox = [];
+
+    if (checkpointData && checkpointData.averages) {
+      const numCheckpoints = steps.length;
+      for (let c = 0; c < numCheckpoints; c++) {
+        const k = steps[c];
+        const avgs = checkpointData.averages[c];
+        let inside = 0;
+        for (let j = 0; j < m; j++) {
+          if (Math.abs(avgs[j] - mu) < epsilon) {
+            inside++;
+          }
+        }
+        stepProbs.push(inside / m);
+        stepChebyshev.push(Math.max(0.0, 1.0 - varSingle / (k * epsilon * epsilon)));
+
+        // Normal approximation via CLT: 2 * Phi(eps * sqrt(k) / sigma) - 1
+        const z = (epsilon * Math.sqrt(k)) / (stdSingle || 1e-9);
+        const pNorm = Math.min(1.0, Math.max(0.0, 2 * normalCdf(z) - 1.0));
+        stepNormalApprox.push(pNorm);
+      }
+    }
 
     return {
       epsilon,
       mu,
       n,
+      m,
+      withinCount,
       empiricalProbWithin,
       empiricalProbOutside,
-      chebyshevBound,
-      conformsToChebyshev: empiricalProbOutside <= chebyshevBound
+      chebyshevUpperBound,
+      chebyshevLowerBound,
+      criticalN95,
+      conformsToChebyshev: empiricalProbOutside <= chebyshevUpperBound + 1e-5,
+      curve: {
+        steps,
+        empiricalProbs: stepProbs,
+        chebyshevBounds: stepChebyshev,
+        normalApproximations: stepNormalApprox
+      }
     };
   }
 
