@@ -949,12 +949,65 @@
         return res.text();
       })
       .then(md => {
-        if (typeof marked !== 'undefined') {
-          elements.reportContainer.innerHTML = marked.parse(md);
-        } else {
-          elements.reportContainer.innerHTML = `<pre>${md}</pre>`;
-        }
+        // Step 1: Extract and protect display math $$ ... $$
+        const displayMath = [];
+        let cleanMd = md.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+          const id = `@@DISPLAYMATH${displayMath.length}@@`;
+          displayMath.push(math.trim());
+          return `\n\n${id}\n\n`;
+        });
 
+        // Step 2: Extract and protect inline math $ ... $
+        const inlineMath = [];
+        cleanMd = cleanMd.replace(/(^|[^\\])\$([^\$\n]+?)\$/g, (match, prefix, math) => {
+          const id = `@@INLINEMATH${inlineMath.length}@@`;
+          inlineMath.push(math.trim());
+          return `${prefix}${id}`;
+        });
+
+        // Step 3: Run marked parser on protected markdown
+        let html = (typeof marked !== 'undefined') ? marked.parse(cleanMd) : `<pre>${cleanMd}</pre>`;
+
+        // Step 4: Render display math with KaTeX directly
+        displayMath.forEach((math, i) => {
+          const id = `@@DISPLAYMATH${i}@@`;
+          let rendered;
+          if (typeof katex !== 'undefined') {
+            try {
+              rendered = `<div class="katex-display" style="margin:16px 0; overflow-x:auto;">${katex.renderToString(math, { displayMode: true, throwOnError: false })}</div>`;
+            } catch (err) {
+              rendered = `<div class="katex-display" style="margin:16px 0;">$$${math}$$</div>`;
+            }
+          } else {
+            rendered = `<div class="katex-display" style="margin:16px 0;">$$${math}$$</div>`;
+          }
+          const pRegex = new RegExp(`<p>\\s*${id}\\s*<\\/p>`, 'g');
+          if (pRegex.test(html)) {
+            html = html.replace(pRegex, rendered);
+          } else {
+            html = html.replaceAll(id, rendered);
+          }
+        });
+
+        // Step 5: Render inline math with KaTeX directly
+        inlineMath.forEach((math, i) => {
+          const id = `@@INLINEMATH${i}@@`;
+          let rendered;
+          if (typeof katex !== 'undefined') {
+            try {
+              rendered = katex.renderToString(math, { displayMode: false, throwOnError: false });
+            } catch (err) {
+              rendered = `$${math}$`;
+            }
+          } else {
+            rendered = `$${math}$`;
+          }
+          html = html.replaceAll(id, rendered);
+        });
+
+        elements.reportContainer.innerHTML = html;
+
+        // Step 6: Final safety pass with renderMathInElement
         if (typeof renderMathInElement !== 'undefined') {
           renderMathInElement(elements.reportContainer, {
             delimiters: [
@@ -980,3 +1033,4 @@
   // Auto boot
   window.addEventListener('DOMContentLoaded', init);
 })();
+

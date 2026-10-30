@@ -94,7 +94,9 @@ $$M_{2,k} = M_{2,k-1} + \frac{k-1}{k^2}(x_k - \bar{x}_{k-1})^2 + \frac{(k-1)^2}{
 
 Factoring out $\frac{k-1}{k^2}(x_k - \bar{x}_{k-1})^2$:
 
-$$M_{2,k} = M_{2,k-1} + \frac{k-1}{k^2}\left[ 1 + (k - 1) \right](x_k - \bar{x}_{k-1})^2 = M_{2,k-1} + \frac{k-1}{k^2}(k)(x_k - \bar{x}_{k-1})^2$$
+$$M_{2,k} = M_{2,k-1} + \frac{k-1}{k^2}\left[ 1 + (k - 1) \right](x_k - \bar{x}_{k-1})^2$$
+
+Since $1 + (k - 1) = k$, the coefficient simplifies as $\frac{k-1}{k^2}\cdot k = \frac{k-1}{k}$:
 
 $$M_{2,k} = M_{2,k-1} + \frac{k-1}{k}(x_k - \bar{x}_{k-1})^2$$
 
@@ -287,3 +289,4 @@ The mathematical findings derived in this homework provide the foundation of inf
 2. The core algorithm requires only **3 lines of logic**, making it ideally suited for edge sensors, embedded telemetry, and high-throughput network monitoring.
 3. In multi-agent penetration testing, the **sampling mean** and **sample variance** are empirically verified to be strictly unbiased estimators ($\bar{M}_n \to \mu$ and $\bar{V}_n \to \sigma^2$).
 4. Increasing the number of systems attempted $n$ collapses the variability of both estimators according to the theoretical $\mathcal{O}(1/n)$ decay law, validating the fundamental premise of statistical sampling in risk analysis.
+

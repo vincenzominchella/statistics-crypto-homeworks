@@ -715,3 +715,11 @@ body {
 .tab-pane.active {
   display: block;
 }
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 0;
+  margin: 16px 0 !important;
+}
+
