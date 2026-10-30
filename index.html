@@ -221,6 +221,51 @@
         </div>
       </article>
 
+      <!-- CARD 5: HOMEWORK 4 -->
+      <article class="card" style="padding:28px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#10b98166'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
+        <div>
+          <!-- Header -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+            <div style="width:48px; height:48px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#34d399; font-size:1.4rem; font-weight:700;">
+              M<sub>2</sub>
+            </div>
+            <span class="card-badge badge-emerald" style="font-size:0.75rem; padding:4px 10px;">Module 5 &bull; Sampling &amp; Welford</span>
+          </div>
+
+          <h2 style="font-size:1.35rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
+            Homework 4: Welford’s Recurrence, Sampling Distributions &amp; Inference
+          </h2>
+          <p style="font-size:0.86rem; color:#94a3b8; line-height:1.55; margin-bottom:18px;">
+            Deriving Welford's 3-line recurrence for running Sum of Squares and variance following Knuth's mean formula. Multi-agent penetration testing across $m$ hackers and $n$ systems on $[0, 10]$ scores: sampling distributions of mean and variance, unbiasedness proofs, and $O(1/n)$ asymptotic variance collapse.
+          </p>
+
+          <!-- Key Highlights List -->
+          <ul style="font-size:0.82rem; color:#cbd5e1; line-height:1.65; padding-left:18px; margin-bottom:20px;">
+            <li><strong>Welford's 3-Line Core Logic:</strong> Full algebraic derivation from Knuth's mean recurrence with $O(1)$ space.</li>
+            <li><strong>Numerical Stability Stress-Test:</strong> Catastrophic cancellation benchmark comparing Welford against textbook formulas at offsets $C \ge 10^9$.</li>
+            <li><strong>Sampling Distributions of Mean &amp; Variance:</strong> Verifying exact unbiasedness ($\mathbb{E}[\bar{x}_n]=\mu$, $\mathbb{E}[s_n^2]=\sigma^2$) across $m$ hackers.</li>
+            <li><strong>Asymptotic Horizon Analysis ($n \to \infty$):</strong> Multi-horizon sweep proving the hyperbolic $O(1/n)$ collapse of estimator uncertainty.</li>
+          </ul>
+
+          <!-- Feature Badges -->
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">
+            <span class="card-badge badge-emerald" style="font-size:0.68rem;">Welford 3-Line Algorithm</span>
+            <span class="card-badge badge-cyan" style="font-size:0.68rem;">Sampling Distributions</span>
+            <span class="card-badge badge-amber" style="font-size:0.68rem;">O(1/n) Decay Law</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
+          <a href="./hw4/" class="btn btn-primary btn-sm" style="flex:1; text-align:center; padding:10px 14px; font-weight:700; background:linear-gradient(135deg, #059669 0%, #047857 100%); border-color:#34d399;">
+            Launch HW4 &rarr;
+          </a>
+          <a href="./hw4/#tab-report" class="btn btn-secondary btn-sm" style="padding:10px 12px;">
+            Paper
+          </a>
+        </div>
+      </article>
+
     </main>
 
     <!-- Direct Submodule Links Callout -->
@@ -258,6 +303,12 @@
             https://vincenzominchella.github.io/statistics-crypto-homeworks/hw3/
           </a>
         </div>
+        <div style="background:#0c1322; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px;">
+          <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Homework 4 Live URL</div>
+          <a href="./hw4/" style="font-family:var(--font-mono); font-size:0.85rem; color:#34d399; text-decoration:none; word-break:break-all;">
+            https://vincenzominchella.github.io/statistics-crypto-homeworks/hw4/
+          </a>
+        </div>
       </div>
     </section>
 
@@ -270,5 +321,20 @@
 
   </div>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
 </body>
 </html>

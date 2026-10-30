@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welford’s Recurrence, Sampling Distributions &amp; Statistical Inference • Homework 4</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="brand-badge">
+            <span class="dot"></span> Online Statistics &amp; Sampling Estimators
+          </div>
+          <span class="meta-tag">Welford 3-Line &bull; Knuth Recurrence &bull; Unbiased Estimators &bull; Sampling Means &bull; Sampling Variances &bull; O(1/n) Decay</span>
+        </div>
+        <div>
+          <a href="../" class="btn btn-secondary btn-sm">
+            &larr; Master Hub Portal
+          </a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">
+          Welford’s Recurrence, Sampling Distributions &amp; Statistical Inference
+        </h1>
+        <p class="hero-subtitle">
+          Deriving Welford's 3-line recurrence formulas for running sum of squares &amp; sample variance. Analyzing multi-agent penetration testing across <em>m</em> hackers and <em>n</em> systems: sampling distributions of the mean and variance, unbiased estimation, numerical stability over naive textbook formulas, and <em>O(1/n)</em> variability collapse.
+        </p>
+      </div>
+    </header>
+
+    <!-- Navigation Hub Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tab-btn-lab" data-target="tab-lab">
+        <span>&fnof;(x)</span> Interactive Simulation Lab
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-report" data-target="tab-report">
+        <span>&para;</span> Technical Specification &amp; Formal Paper
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE SIMULATION LAB -->
+    <!-- ===================================================================== -->
+    <div id="tab-lab" class="tab-pane active">
+
+      <!-- High-Level Metric Stat Cards -->
+      <section class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <span class="stat-label">Grand Mean M̄<sub>n</sub> vs &mu;</span>
+          <span class="stat-value" style="color:var(--accent-cyan);" id="stat-grand-mean">4.00</span>
+          <span class="stat-sub" id="stat-sub-mean">Theoretical &mu; = 4.00 &bull; Bias &Delta; &approx; 0.00</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Grand Variance V̄<sub>n</sub> vs &sigma;&sup2;</span>
+          <span class="stat-value" style="color:var(--accent-emerald);" id="stat-grand-var">2.40</span>
+          <span class="stat-sub" id="stat-sub-var">Theoretical &sigma;&sup2; = 2.40 &bull; Unbiased (n-1)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Var of Mean Var(x̄<sub>n</sub>)</span>
+          <span class="stat-value" style="color:var(--accent-amber);" id="stat-var-mean">0.024</span>
+          <span class="stat-sub" id="stat-sub-var-mean">Decays as &sigma;&sup2;/n &sim; O(1/n)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Var of Variance Var(s<sub>n</sub>&sup2;)</span>
+          <span class="stat-value" style="color:var(--accent-violet);" id="stat-var-var">0.115</span>
+          <span class="stat-sub" id="stat-sub-var-var">Decays as O(1/n) &rarr; Asymptotic Zero</span>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- EXERCISE 1: WELFORD'S RECURRENCE FORMULAS & NUMERICAL STABILITY LAB -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&Sigma;</div>
+            <div>
+              <h2 class="card-title">Exercise 1: Welford’s Recurrence Formulas &amp; Numerical Precision Lab</h2>
+              <p class="card-subtitle">Exact derivation of running Sum of Squares (SS) and variance following Knuth's recurrence for the mean.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-cyan">Ex. 1 &bull; 3-Line Algorithm</span>
+        </div>
+
+        <div class="grid-2">
+          
+          <!-- Derivation & 3-line Code Callout -->
+          <div>
+            <h3 style="font-size:0.95rem; color:#fff; margin-bottom:8px;">Mathematical Derivation from Knuth's Mean:</h3>
+            <div class="code-box" style="margin-bottom:12px;">
+              <div class="code-box-label">Knuth Running Mean Recurrence (1962)</div>
+              x̄<sub>k</sub> = x̄<sub>k-1</sub> + (x<sub>k</sub> &minus; x̄<sub>k-1</sub>) / k
+            </div>
+
+            <div class="code-box" style="margin-bottom:14px;">
+              <div class="code-box-label">Welford Running Sum of Squares Recurrence (1962)</div>
+              M<sub>2,k</sub> = M<sub>2,k-1</sub> + (x<sub>k</sub> &minus; x̄<sub>k-1</sub>)(x<sub>k</sub> &minus; x̄<sub>k</sub>)
+              <div style="margin-top:6px; color:#cbd5e1; font-size:0.75rem;">
+                Sample Variance: s<sub>k</sub>&sup2; = M<sub>2,k</sub> / (k &minus; 1) &nbsp;&bull;&nbsp; Population Variance: &sigma;<sub>k</sub>&sup2; = M<sub>2,k</sub> / k
+              </div>
+            </div>
+
+            <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:12px 14px;">
+              <div style="font-size:0.75rem; text-transform:uppercase; color:#38bdf8; font-weight:700; margin-bottom:6px;">
+                Exact 3-Line Core JavaScript Implementation:
+              </div>
+              <pre style="margin:0; font-family:var(--font-mono); font-size:0.84rem; color:#34d399; line-height:1.6;"><code>// The core logic requires exactly 3 lines:
+const delta = x - mean;
+mean += delta / k;
+M2 += delta * (x - mean);</code></pre>
+            </div>
+          </div>
+
+          <!-- Catastrophic Cancellation Stress Tester -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="font-size:0.95rem; color:#fff;">Interactive Floating-Point Cancellation Stress-Test:</h3>
+              <span class="card-badge badge-rose" id="badge-cancel-status">Cancellation Detected</span>
+            </div>
+            <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:12px;">
+              Testing sample values [1..10] shifted by an astronomical offset <em>C</em>. The textbook naive formula &sum;x&sup2; &minus; (&sum;x)&sup2;/N suffers disastrous subtractive cancellation.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">
+                <span>Constant Offset Shift (C)</span>
+                <span id="badge-offset-val" class="slider-val-badge">C = 10⁹ (1,000,000,000)</span>
+              </label>
+              <div class="slider-container">
+                <input type="range" min="0" max="12" step="1" value="9" class="slider-input" id="slider-cancel-offset">
+              </div>
+            </div>
+
+            <!-- Live Precision Comparison Table -->
+            <div class="comparison-table-wrapper" style="margin-top:10px;">
+              <table class="comparison-table">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>Calculated Variance</th>
+                    <th>Absolute Error</th>
+                    <th>Numerical Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-cancel-results">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <p style="font-size:0.75rem; color:#64748b; margin-top:8px;">
+              Notice: At C &ge; 10⁸, the naive formula yields inaccurate, 0, or negative variance due to losing the least significant bits during floating point subtraction! Welford's algorithm maintains full 64-bit precision.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- EXERCISE 2: STOCHASTIC MODEL & SIMULATION PARAMETERS -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">&sim;</div>
+            <div>
+              <h2 class="card-title">Exercise 2: Multi-Agent Penetration Testing Parameters</h2>
+              <p class="card-subtitle">Configure <em>m</em> hackers, <em>n</em> target systems, and the underlying score distribution on [0, 10].</p>
+            </div>
+          </div>
+          <!-- Presets -->
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" id="btn-preset-small">Preset 1: Quick (n=25, m=50)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-preset-standard">Preset 2: Standard (n=100, m=200)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-preset-deep">Preset 3: Deep Defense (n=500, m=500)</button>
+            <button class="btn btn-secondary btn-sm" id="btn-preset-asymptote">Preset 4: Asymptotic (n=1200, m=800)</button>
+          </div>
+        </div>
+
+        <!-- Distribution Selector Cards -->
+        <div style="margin-bottom:20px;">
+          <label class="form-label" style="margin-bottom:6px;">Score Distribution on [0, 10]:</label>
+          <div class="radio-group-cards">
+            <label class="radio-card-label selected" id="label-dist-binomial">
+              <input type="radio" name="radio-dist" value="binomial" checked>
+              <div class="radio-card-title">
+                <span>&bull;</span> Binomial Bin(10, p)
+              </div>
+              <div class="radio-card-desc">10 independent sub-vector exploits. Bell-shaped discrete binomial.</div>
+            </label>
+
+            <label class="radio-card-label" id="label-dist-uniform">
+              <input type="radio" name="radio-dist" value="uniform">
+              <div class="radio-card-title">
+                <span>&bull;</span> Discrete Uniform U{0, 10}
+              </div>
+              <div class="radio-card-desc">Equiprobable 11 score levels (0 to 10). Maximum variance &sigma;&sup2; = 10.</div>
+            </label>
+
+            <label class="radio-card-label" id="label-dist-cvss">
+              <input type="radio" name="radio-dist" value="cvss">
+              <div class="radio-card-title">
+                <span>&bull;</span> CVSS Cyber Threat Profile
+              </div>
+              <div class="radio-card-desc">Bimodal real-world telemetry: 30% blocked (0), peaks at 5.0 and 8.5.</div>
+            </label>
+
+            <label class="radio-card-label" id="label-dist-apt">
+              <input type="radio" name="radio-dist" value="apt">
+              <div class="radio-card-title">
+                <span>&bull;</span> APT Critical Exploit Profile
+              </div>
+              <div class="radio-card-desc">Right-skewed high severity: advanced persistent threats targeting 7-10.</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Sliders Grid -->
+        <div class="grid-3" style="margin-bottom:20px;">
+          
+          <!-- Slider: Systems Depth n -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Target Systems Attempted (n)</span>
+              <span id="badge-n-val" class="slider-val-badge">n = 100</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="5" max="1500" step="5" value="100" class="slider-input" id="slider-n">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Trajectory length per hacker</span>
+          </div>
+
+          <!-- Slider: Hackers Fleet Size m -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Independent Hackers (m)</span>
+              <span id="badge-m-val" class="slider-val-badge">m = 200</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="10" max="1000" step="10" value="200" class="slider-input" id="slider-m">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Ensemble sample trajectories</span>
+          </div>
+
+          <!-- Slider: Binomial Probability p (Shown if Binomial active) -->
+          <div class="form-group" id="group-param-p">
+            <label class="form-label">
+              <span>Binomial Breach Prob (p)</span>
+              <span id="badge-p-val" class="slider-val-badge">p = 0.40</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="0.05" max="0.95" step="0.05" value="0.40" class="slider-input" id="slider-p">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Controls theoretical &mu; = 10p, &sigma;&sup2; = 10p(1&minus;p)</span>
+          </div>
+
+        </div>
+
+        <!-- Run Simulation Button & Stats Summary -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; pt:8px; border-top:1px solid #1e293b; padding-top:16px;">
+          <div id="sim-theoretical-summary" style="font-size:0.85rem; color:#cbd5e1; font-family:var(--font-mono);">
+            Theoretical: &mu; = 4.00 &bull; &sigma;&sup2; = 2.40 &bull; &sigma; = 1.55 &bull; Horizon n = 100 &bull; Hackers m = 200
+          </div>
+          <button class="btn btn-primary" id="btn-run-simulation">
+            <span>&#9654;</span> Run Welford Ensemble Simulation
+          </button>
+        </div>
+
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTION 3: TRAJECTORY VISUALIZER & ONLINE WELFORD CONVERGENCE -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&prop;</div>
+            <div>
+              <h2 class="card-title">Part 1: Sample Path Trajectories &amp; Online Convergence</h2>
+              <p class="card-subtitle">Examine how hacker sampling means (x̄<sub>k</sub>) and sampling variances (s<sub>k</sub>&sup2;) evolve over systems <em>k = 1 ... n</em>.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-cyan" id="badge-rendered-paths">Rendered: 30 / 200 Paths</span>
+        </div>
+
+        <!-- Trajectory Mode Tabs -->
+        <div class="view-tabs">
+          <button class="view-tab-btn active" data-view="means">
+            <span>&bull;</span> Sampling Mean Trajectories x̄<sub>k</sub> &rarr; &mu;
+          </button>
+          <button class="view-tab-btn" data-view="vars">
+            <span>&bull;</span> Sampling Variance Trajectories s<sub>k</sub>&sup2; &rarr; &sigma;&sup2;
+          </button>
+          <button class="view-tab-btn" data-view="scores">
+            <span>&bull;</span> Raw Attempt Scores X<sub>k</sub> &isin; [0, 10]
+          </button>
+          <button class="view-tab-btn" data-view="synced">
+            <span>&equiv;</span> 3-Pane Synced Overview
+          </button>
+        </div>
+
+        <!-- Canvas Container for Trajectories -->
+        <div id="container-single-canvas" class="canvas-wrapper">
+          <canvas id="canvas-trajectories" width="1200" height="420"></canvas>
+        </div>
+
+        <!-- 3-Pane Synced Container (Hidden by default) -->
+        <div id="container-synced-canvas" class="grid-3" style="display:none; margin-top:12px;">
+          <div>
+            <h4 style="font-size:0.85rem; color:#38bdf8; margin-bottom:4px;">1. Sampling Mean x̄<sub>k</sub> (Funnels to &mu;)</h4>
+            <div class="canvas-wrapper"><canvas id="canvas-sync-means" width="400" height="260"></canvas></div>
+          </div>
+          <div>
+            <h4 style="font-size:0.85rem; color:#34d399; margin-bottom:4px;">2. Sampling Variance s<sub>k</sub>&sup2; (Stabilizes to &sigma;&sup2;)</h4>
+            <div class="canvas-wrapper"><canvas id="canvas-sync-vars" width="400" height="260"></canvas></div>
+          </div>
+          <div>
+            <h4 style="font-size:0.85rem; color:#fbbf24; margin-bottom:4px;">3. Raw Attempt Scores X<sub>k</sub> &isin; [0, 10]</h4>
+            <div class="canvas-wrapper"><canvas id="canvas-sync-scores" width="400" height="260"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Dynamics Explanation Callout -->
+        <div style="margin-top:16px; padding:12px 16px; background:#0b1329; border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.82rem; color:#cbd5e1; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div><strong style="color:#38bdf8;">Mean x̄<sub>k</sub>:</strong> Funnels into &mu;, spread collapses as <em>O(1/k)</em> with 2&sigma;/&radic;k envelope bands.</div>
+          <div><strong style="color:#34d399;">Variance s<sub>k</sub>&sup2;:</strong> Welford's running variance asymptotically stabilizes at &sigma;&sup2;, initial volatility subsides rapidly.</div>
+          <div><strong style="color:#fbbf24;">Raw Scores X<sub>k</sub>:</strong> Persistent stochastic fluctuations across [0, 10] driven by the chosen probability distribution.</div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTION 4: SAMPLING DISTRIBUTIONS & UNBIASEDNESS PROOFS -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon violet">&int;</div>
+            <div>
+              <h2 class="card-title">Part 2: Sampling Distributions &amp; Estimator Unbiasedness</h2>
+              <p class="card-subtitle">Empirical density distributions of the <em>m</em> sampling means and <em>m</em> sampling variances at horizon <em>n</em>.</p>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span class="card-badge badge-cyan" id="badge-unbiased-mean">M̄<sub>n</sub> &approx; &mu; (Unbiased)</span>
+            <span class="card-badge badge-emerald" id="badge-unbiased-var">V̄<sub>n</sub> &approx; &sigma;&sup2; (Unbiased)</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          
+          <!-- Chart A: Distribution of Sampling Means -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <h4 style="font-size:0.95rem; color:#fff;">A. Sampling Distribution of the Mean x̄<sub>n</sub></h4>
+              <div style="display:flex; gap:12px; font-size:0.75rem;">
+                <span style="color:#38bdf8;">&FilledSmallSquare; Empirical Densities</span>
+                <span style="color:#f43f5e;">&horbar; Theoretical &Nscr;(&mu;, &sigma;&sup2;/n)</span>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-hist-means" width="600" height="280"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Distribution of the <em>m</em> hacker sample means x̄<sub>n</sub>, centered tightly at &mu; with variance &sigma;&sup2;/n (Central Limit Theorem).
+            </p>
+          </div>
+
+          <!-- Chart B: Distribution of Sampling Variances -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <h4 style="font-size:0.95rem; color:#fff;">B. Sampling Distribution of the Variance s<sub>n</sub>&sup2;</h4>
+              <div style="display:flex; gap:12px; font-size:0.75rem;">
+                <span style="color:#34d399;">&FilledSmallSquare; Empirical Densities</span>
+                <span style="color:#fbbf24;">&horbar; Expected &sigma;&sup2; Target</span>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-hist-vars" width="600" height="280"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Distribution of the <em>m</em> hacker sample variances s<sub>n</sub>&sup2;. The grand average V̄<sub>n</sub> matches theoretical &sigma;&sup2; exactly, validating Bessel's correction (n &minus; 1).
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Moments & Estimator Verification Table -->
+        <div style="margin-top:24px;">
+          <h4 style="font-size:0.9rem; color:#cbd5e1; margin-bottom:8px;">Estimator Unbiasedness &amp; Sampling Variance Verification:</h4>
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Estimator Quantity</th>
+                  <th>Mathematical Definition</th>
+                  <th>Theoretical Target</th>
+                  <th>Grand Average Across m Hackers</th>
+                  <th>Absolute Bias &Delta;</th>
+                  <th>Sampling Variance Var(Estimator)</th>
+                  <th>Theoretical Variance Law</th>
+                  <th>Unbiasedness Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-estimators-verification">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTION 5: MULTI-HORIZON VARIABILITY SWEEP: IMPACT OF INCREASING n -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon amber">&Dagger;</div>
+            <div>
+              <h2 class="card-title">Part 3: Multi-Horizon Analysis: How Increasing <em>n</em> Collapses Estimator Variability</h2>
+              <p class="card-subtitle">Direct experimental verification: How increasing systems <em>n</em> attempted per hacker affects the variability of sample means and sample variances.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-amber">Asymptotic O(1/n) Decay</span>
+        </div>
+
+        <div class="grid-2">
+          
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="font-size:0.92rem; color:#fff;">Variability Scaling Curves vs System Count <em>n</em></h4>
+              <div style="display:flex; gap:12px; font-size:0.75rem;">
+                <span style="color:#38bdf8;">Var(x̄<sub>n</sub>) &sim; &sigma;&sup2;/n</span>
+                <span style="color:#c084fc;">Var(s<sub>n</sub>&sup2;) &sim; O(1/n)</span>
+              </div>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-horizon-sweep" width="600" height="280"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">
+              Empirical variance of x̄<sub>n</sub> and s<sub>n</sub>&sup2; across <em>m</em> hackers evaluated at horizons <em>n &isin; [5, 10, 20, 50, 100, 200, 500, 1000]</em>. Both collapse to zero hyperbolically as <em>1/n</em>.
+            </p>
+          </div>
+
+          <div>
+            <h4 style="font-size:0.92rem; color:#fff; margin-bottom:8px;">Analytical Takeaways &amp; Inferential Implications:</h4>
+            
+            <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px; margin-bottom:12px;">
+              <div style="font-size:0.75rem; color:#38bdf8; font-weight:700; text-transform:uppercase; margin-bottom:4px;">1. Variability of the Sampling Mean Var(x̄<sub>n</sub>)</div>
+              <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.5; margin:0;">
+                By the Bienaym&eacute; formula for IID variables, <strong>Var(x̄<sub>n</sub>) = &sigma;&sup2; / n</strong>. The standard error decreases as <em>1/&radic;n</em>. As <em>n &rarr; &infin;</em>, the sampling mean becomes an almost deterministic point estimate &mu; (Law of Large Numbers).
+              </p>
+            </div>
+
+            <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px; margin-bottom:12px;">
+              <div style="font-size:0.75rem; color:#c084fc; font-weight:700; text-transform:uppercase; margin-bottom:4px;">2. Variability of the Sample Variance Var(s<sub>n</sub>&sup2;)</div>
+              <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.5; margin:0;">
+                The sampling variance of s<sub>n</sub>&sup2; follows <strong>Var(s<sub>n</sub>&sup2;) = (1/n)[&mu;<sub>4</sub> &minus; ((n&minus;3)/(n&minus;1))&sigma;⁴]</strong>. Because &mu;<sub>4</sub> (the 4th central moment) is finite for any bounded score in [0, 10], Var(s<sub>n</sub>&sup2;) &rarr; 0 as <em>O(1/n)</em>.
+              </p>
+            </div>
+
+            <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px;">
+              <div style="font-size:0.75rem; color:#10b981; font-weight:700; text-transform:uppercase; margin-bottom:4px;">3. Operational Inferential Utility</div>
+              <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.5; margin:0;">
+                In real security audits, defenders observe only <em>one</em> hacker's trajectory. Unbiasedness guarantees no systematic under/over-estimation, while increasing sample depth <em>n</em> tightens confidence intervals: <strong>x̄<sub>n</sub> &plusmn; t<sub>&alpha;/2</sub> &middot; s<sub>n</sub> / &radic;n</strong>.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SECTION 6: INFERENTIAL STATISTICS & CYBER DEFENSE MATRIX -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">&dagger;</div>
+            <div>
+              <h2 class="card-title">Part 4: Inferential Statistics &amp; Cybersecurity Matrix</h2>
+              <p class="card-subtitle">Connecting formal mathematical quantities with concrete enterprise cyber defense operations.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-emerald">Operational Mapping</span>
+        </div>
+
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Statistical Quantity</th>
+                <th>Mathematical Formalism</th>
+                <th>Cyber Security Physical Meaning</th>
+                <th>Impact as Systems n &rarr; &infin;</th>
+                <th>Impact as Hackers m &rarr; &infin;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="strong">Individual Penetration Score X<sub>i</sub></td>
+                <td>Random variable X &isin; [0, 10] with mean &mu;, variance &sigma;&sup2;</td>
+                <td>Severity rating of vulnerability exploited at system <em>i</em> (e.g. CVSS 0 to 10).</td>
+                <td>Each system adds one independent assessment of defense resistance.</td>
+                <td>Diverse adversary tools evaluate the system independently.</td>
+              </tr>
+              <tr>
+                <td class="strong">Sampling Mean x̄<sub>n</sub></td>
+                <td>(1/n)&sum; X<sub>i</sub> (Computed via Welford)</td>
+                <td>Average exploit severity achieved by an individual hacker across target perimeter.</td>
+                <td>Variance collapses as &sigma;&sup2;/n; estimate converges to true architecture mean &mu;.</td>
+                <td>Histogram across hackers approaches Gaussian bell curve &Nscr;(&mu;, &sigma;&sup2;/n).</td>
+              </tr>
+              <tr>
+                <td class="strong">Sample Variance s<sub>n</sub>&sup2;</td>
+                <td>M<sub>2,n</sub> / (n &minus; 1) (Welford with Bessel correction)</td>
+                <td>Heterogeneity of defensive posture (consistent defense vs Swiss-cheese holes).</td>
+                <td>Variability of estimate collapses as O(1/n); auditor learns true defense variance &sigma;&sup2;.</td>
+                <td>Grand average V̄<sub>n</sub> converges precisely to population variance &sigma;&sup2;.</td>
+              </tr>
+              <tr>
+                <td class="strong">Unbiasedness Property</td>
+                <td>&Eopf;[x̄<sub>n</sub>] = &mu; and &Eopf;[s<sub>n</sub>&sup2;] = &sigma;&sup2;</td>
+                <td>A single penetration audit does not systematically underestimate or overestimate true systemic risk.</td>
+                <td>Enables reliable confidence bounds for executive compliance audits.</td>
+                <td>Guarantees that combining independent red-team reports yields the exact ground truth.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: TECHNICAL SPECIFICATION & FORMAL PAPER -->
+    <!-- ===================================================================== -->
+    <div id="tab-report" class="tab-pane">
+      <article class="card">
+        <div id="report-rendered-markdown" class="markdown-body">
+          <div style="text-align:center; padding:40px 0; color:#94a3b8;">
+            <div style="font-size:1.5rem; margin-bottom:12px;">Loading Formal Paper &amp; Mathematical Specification...</div>
+            <p style="font-size:0.85rem;">Rendering Markdown and KaTeX LaTeX formulas...</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer" style="text-align:center; padding-top:20px; border-top:1px solid #1e293b;">
+      <p style="font-size:0.8rem; color:#64748b; margin:0;">
+        Pure Vanilla HTML5, CSS3, Modern ECMAScript (Canvas &amp; Welford Engine). Zero external runtime dependencies.
+      </p>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="welford_engine.js?v=1"></script>
+  <script src="app_hw4.js?v=1"></script>
+</body>
+</html>

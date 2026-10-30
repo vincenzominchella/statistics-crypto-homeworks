@@ -89,6 +89,7 @@ Then navigate to:
 - `http://localhost:8000/hw2/` (Homework 2 standalone)
 - `http://localhost:8000/ECCvsCaesarCipher/` (ECC vs Caesar Cipher standalone)
 - `http://localhost:8000/hw3/` (Homework 3 standalone)
+- `http://localhost:8000/hw4/` (Homework 4 standalone)
 
 ---
 
@@ -122,6 +123,12 @@ Then navigate to:
 │   ├── stochastic_engine.js     # Bernoulli, Rademacher, LLN, CLT & moments engine
 │   ├── style.css                # Scoped stylesheet for HW3
 │   └── Homework3_Report.md      # Full academic report with KaTeX proofs
+├── hw4/                         # Standalone Module 5: Welford's Recurrence & Sampling Inference
+│   ├── index.html               # Dedicated Homework 4 page (Lab + Formal Paper)
+│   ├── app_hw4.js               # UI controller, Canvas charts & multi-horizon sweep
+│   ├── welford_engine.js        # Exact 3-line Welford algorithm, [0,10] distributions & moments
+│   ├── style.css                # Scoped stylesheet for HW4
+│   └── Homework4_Report.md      # Full academic report with mathematical derivations
 └── README.md                    # Project documentation and summary
 ```
 
@@ -132,6 +139,15 @@ Then navigate to:
 You can verify all modules using Node.js:
 
 ```bash
+# Test Welford's algorithm and numerical precision:
+node -e "
+const W = require('./hw4/welford_engine.js');
+console.log('Cancellation benchmark:', W.runCatastrophicCancellationTest(1e9, 100));
+const sim = W.simulateHackerEnsemble({ n: 100, m: 200, distType: 'binomial' });
+console.log('Grand Mean:', sim.results.grandAverageMean, 'Th:', sim.theoretical.mu);
+console.log('Grand Var:', sim.results.grandAverageVariance, 'Th:', sim.theoretical.variance);
+"
+
 # Test ECC vs Caesar Cipher and BSGS attack:
 node -e "
 const Engine = require('./ECCvsCaesarCipher/ecc_caesar_engine.js');
