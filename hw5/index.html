@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riemann vs. Lebesgue Integration &amp; Normal CDF Numerical Methods • Homework 5</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="brand-badge">
+            <span class="dot"></span> Real Analysis &amp; Numerical Probability
+          </div>
+          <span class="meta-tag">Riemann Partitioning &bull; Lebesgue Preimages &bull; Measure Theory &bull; Liouville's Theorem &bull; Normal CDF &bull; Error Function erf</span>
+        </div>
+        <div>
+          <a href="../" class="btn btn-secondary btn-sm">
+            &larr; Master Hub Portal
+          </a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">
+          Riemann vs. Lebesgue Integration &amp; Normal CDF Numerical Computation
+        </h1>
+        <p class="hero-subtitle">
+          Comparing domain-partitioning (Riemann) versus range-partitioning (Lebesgue) across smooth, step, improper, and pathological functions (Dirichlet &amp; Thomae). Developing high-precision numerical algorithms for the standard normal CDF &Phi;(z), investigating Liouville’s theorem on elementary antiderivatives, and benchmarking power series, numerical quadrature, and rational Chebyshev approximations against NIST references.
+        </p>
+      </div>
+    </header>
+
+    <!-- Navigation Hub Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tab-btn-lab" data-target="tab-lab">
+        <span>&fnof;(x)</span> Interactive Simulation Lab
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-report" data-target="tab-report">
+        <span>&para;</span> Technical Specification &amp; Formal Paper
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE SIMULATION LAB -->
+    <!-- ===================================================================== -->
+    <div id="tab-lab" class="tab-pane active">
+
+      <!-- High-Level Metric Stat Cards -->
+      <section class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <span class="stat-label">Riemann Midpoint Integral</span>
+          <span class="stat-value" style="color:var(--accent-cyan);" id="stat-riemann-val">2.000000</span>
+          <span class="stat-sub" id="stat-sub-riemann">Exact: 2.000000 &bull; Err: 0.00e+0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Lebesgue Simple Sum</span>
+          <span class="stat-value" style="color:var(--accent-emerald);" id="stat-lebesgue-val">1.998381</span>
+          <span class="stat-sub" id="stat-sub-lebesgue">Range slices M = 20 &bull; Err: 1.62e-3</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Normal CDF &Phi;(z = 1.96)</span>
+          <span class="stat-value" style="color:var(--accent-amber);" id="stat-normal-val">0.975000</span>
+          <span class="stat-sub" id="stat-sub-normal">NIST Ref: 0.975000 &bull; Err: &plusmn;3.3e-16</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Integrability Verdict</span>
+          <span class="stat-value" style="color:var(--accent-violet);" id="stat-verdict">Equivalence</span>
+          <span class="stat-sub" id="stat-sub-verdict">Riemann = Lebesgue on C[a,b]</span>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- EXERCISE 1: RIEMANN VS LEBESGUE INTEGRATION LAB -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&int;</div>
+            <div>
+              <h2 class="card-title">Exercise 1: Riemann vs. Lebesgue Numerical Integration</h2>
+              <p class="card-subtitle">Domain slicing [x<sub>i-1</sub>, x<sub>i</sub>] vs. Range slicing [y<sub>j-1</sub>, y<sub>j</sub>] and preimage measure computation &mu;(E<sub>j</sub>).</p>
+            </div>
+          </div>
+          <span class="card-badge badge-cyan" id="badge-integrability-status">Riemann &amp; Lebesgue Equivalent</span>
+        </div>
+
+        <!-- Function Selector & Parameters -->
+        <div class="grid-3" style="margin-bottom:20px;">
+          
+          <div class="form-group">
+            <label class="form-label">
+              <span>Benchmark Target Function f(x)</span>
+            </label>
+            <select class="select-input" id="select-function">
+              <optgroup label="Standard Smooth &amp; Convex">
+                <option value="sin" selected>f(x) = sin(x) on [0, π] (Exact = 2)</option>
+                <option value="x2">f(x) = x² on [0, 1] (Exact = 1/3)</option>
+                <option value="sinc">f(x) = sin(x)/x on [0, π] (Exact ≈ 1.851937)</option>
+              </optgroup>
+              <optgroup label="Piecewise &amp; Singular">
+                <option value="step">f(x) = 1 if x &lt; 0.5, else 3 on [0, 1] (Exact = 2)</option>
+                <option value="indicator">f(x) = 1 if x &lt; 0.5, else 0 on [0, 1] (Exact = 0.5)</option>
+                <option value="abs_shift">f(x) = |x - 0.5| on [0, 1] (Exact = 0.25)</option>
+                <option value="inv_sqrt">f(x) = 1/√x on (0, 1] (Improper, Exact = 2)</option>
+              </optgroup>
+              <optgroup label="Pathological Non-Continuous">
+                <option value="dirichlet">Dirichlet Function: 1 if x ∈ Q, else 0 (R: DNE, L: 0)</option>
+                <option value="thomae">Thomae’s Function: 1/q if x = p/q, else 0 (R: 0, L: 0)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Riemann Partitions (N)</span>
+              <span id="badge-n-partitions" class="slider-val-badge">N = 80</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="4" max="800" step="4" value="80" class="slider-input" id="slider-riemann-n">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Subintervals in domain [a, b]</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Lebesgue Range Slices (M)</span>
+              <span id="badge-m-layers" class="slider-val-badge">M = 20</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="4" max="150" step="2" value="20" class="slider-input" id="slider-lebesgue-m">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Horizontal slices in range [y_min, y_max]</span>
+          </div>
+
+        </div>
+
+        <!-- Mathematical Specification Callout -->
+        <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:20px; font-family:var(--font-mono); font-size:0.82rem; color:#cbd5e1; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div id="callout-func-latex">Function: f(x) = sin(x) on [0, π]</div>
+          <div id="callout-exact-latex" style="color:#34d399;">Analytical Integral = 2.00000000</div>
+        </div>
+
+        <!-- Dual Visualizer Canvases: Side-by-Side Comparison -->
+        <div class="grid-2">
+          
+          <!-- Canvas Left: Riemann Domain Slicing -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="font-size:0.95rem; color:#38bdf8;">A. Riemann Approach: Domain Partitioning</h3>
+              <span class="card-badge badge-cyan" id="badge-riemann-rule">Midpoint Rule &Delta;x</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-riemann" width="600" height="340"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Vertical columns partitioning the domain axis into subintervals [x<sub>i-1</sub>, x<sub>i</sub>]. Dark overlay shows the Darboux upper/lower bound envelope.
+            </p>
+          </div>
+
+          <!-- Canvas Right: Lebesgue Range Slicing & Preimage Sets -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="font-size:0.95rem; color:#34d399;">B. Lebesgue Approach: Range Slicing &amp; Preimages</h3>
+              <span class="card-badge badge-emerald" id="badge-lebesgue-layers">M = 20 Horizontal Layers</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-lebesgue" width="600" height="340"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Horizontal layers [y<sub>j-1</sub>, y<sub>j</sub>] partitioning the range. Colored tags along the base axis indicate the preimage sets E<sub>j</sub> = f<sup>&minus;1</sup>([y<sub>j-1</sub>, y<sub>j</sub>]).
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Quantitative Comparison Table -->
+        <div style="margin-top:24px;">
+          <h4 style="font-size:0.9rem; color:#cbd5e1; margin-bottom:8px;">Numerical Convergence &amp; Accuracy Breakdown:</h4>
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Method &amp; Framework</th>
+                  <th>Partitioning Strategy</th>
+                  <th>Computed Numerical Value</th>
+                  <th>Exact Target Value</th>
+                  <th>Absolute Error |I<sub>num</sub> &minus; I<sub>exact</sub>|</th>
+                  <th>Convergence Rate</th>
+                  <th>Status &amp; Integrability</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-integration-results">
+                <!-- Dynamically populated via app_hw5.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pathological Explanations Box -->
+        <div id="pathology-explanation-box" style="margin-top:16px; padding:14px 18px; background:#0b1329; border:1px solid #1e293b; border-radius:var(--radius-sm); font-size:0.83rem; color:#cbd5e1; display:none;">
+          <div style="font-weight:700; color:#f43f5e; margin-bottom:4px;" id="pathology-title">Pathological Function Analysis</div>
+          <div id="pathology-desc">Explanation text...</div>
+        </div>
+
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- EXERCISE 2: NUMERICAL COMPUTATION OF THE NORMAL CDF Φ(z) -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">&Phi;</div>
+            <div>
+              <h2 class="card-title">Exercise 2: Numerical Computation of the Normal CDF &Phi;(z)</h2>
+              <p class="card-subtitle">Evaluating the standard normal distribution &Phi;(z) = &int;<sub>&minus;&infin;</sub><sup>z</sup> (1/&radic;2&pi;) e<sup>&minus;t&sup2;/2</sup> dt via power series, numerical quadrature, and rational Chebyshev approximations.</p>
+            </div>
+          </div>
+          <!-- Quick Presets -->
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="0.0">z = 0.0 (&mu;)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="1.0">z = 1.0 (1&sigma;)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="1.645">z = 1.645 (90%)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="1.96">z = 1.96 (95%)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="2.576">z = 2.576 (99%)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="3.0">z = 3.0 (3&sigma;)</button>
+            <button class="btn btn-secondary btn-sm preset-z-btn" data-z="5.0">z = 5.0 (5&sigma;)</button>
+          </div>
+        </div>
+
+        <!-- Slider Controls -->
+        <div class="grid-3" style="margin-bottom:20px;">
+          <div class="form-group">
+            <label class="form-label">
+              <span>Evaluation Point (z)</span>
+              <span id="badge-z-val" class="slider-val-badge">z = 1.960</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="-4.5" max="4.5" step="0.05" value="1.96" class="slider-input" id="slider-normal-z">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Standard deviations from mean</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Series Expansion Terms (K)</span>
+              <span id="badge-k-terms" class="slider-val-badge">K = 35 terms</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="2" max="60" step="1" value="35" class="slider-input" id="slider-series-k">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Hogg-McKean-Craig power series truncation</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Quadrature Subdivisions (N)</span>
+              <span id="badge-quad-n" class="slider-val-badge">N = 500 steps</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" min="10" max="2000" step="10" value="500" class="slider-input" id="slider-quad-n">
+            </div>
+            <span style="font-size:0.75rem; color:#64748b;">Composite Simpson &amp; Trapezoidal steps</span>
+          </div>
+        </div>
+
+        <!-- Method Comparison 4-Card Deck -->
+        <div class="grid-4" style="margin-bottom:24px;">
+          
+          <div class="stat-card" style="border-left: 3px solid var(--accent-cyan);">
+            <span class="stat-label">1. Power Series (Hogg-McKean-Craig)</span>
+            <span class="stat-value" style="color:var(--accent-cyan); font-size:1.35rem;" id="val-method-series">0.97500000</span>
+            <span class="stat-sub" id="err-method-series">Abs Error: 3.33e-16 &bull; O(z^(2K+1))</span>
+          </div>
+
+          <div class="stat-card" style="border-left: 3px solid var(--accent-emerald);">
+            <span class="stat-label">2. Numerical Quadrature (Simpson 1/3)</span>
+            <span class="stat-value" style="color:var(--accent-emerald); font-size:1.35rem;" id="val-method-simpson">0.97500000</span>
+            <span class="stat-sub" id="err-method-simpson">Abs Error: 6.33e-15 &bull; O(h⁴)</span>
+          </div>
+
+          <div class="stat-card" style="border-left: 3px solid var(--accent-amber);">
+            <span class="stat-label">3. Abramowitz &amp; Stegun 26.2.17</span>
+            <span class="stat-value" style="color:var(--accent-amber); font-size:1.35rem;" id="val-method-as">0.97500007</span>
+            <span class="stat-sub" id="err-method-as">Abs Error: 6.99e-08 &bull; Rational Poly</span>
+          </div>
+
+          <div class="stat-card" style="border-left: 3px solid var(--accent-violet);">
+            <span class="stat-label">4. Error Function erf(z/√2)</span>
+            <span class="stat-value" style="color:var(--accent-violet); font-size:1.35rem;" id="val-method-erf">0.97500007</span>
+            <span class="stat-sub" id="err-method-erf">Closed-Form Special Function Map</span>
+          </div>
+
+        </div>
+
+        <!-- Canvas: Error Decay & Convergence -->
+        <div class="grid-2">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="font-size:0.95rem; color:#fff;">Log-Log Error Decay: Series vs. Quadrature</h3>
+              <span class="card-badge badge-amber">Asymptotic Convergence</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-normal-convergence" width="600" height="300"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Comparing absolute error |&Phi;<sub>num</sub> &minus; &Phi;<sub>NIST</sub>| as a function of power series order K and Simpson quadrature steps N. Note the machine epsilon floor at ~10<sup>-16</sup>.
+            </p>
+          </div>
+
+          <!-- Liouville Theorem & Special Function Callout -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h3 style="font-size:0.95rem; color:#fff;">Liouville’s Theorem &amp; The Need for Numerical Algorithms</h3>
+              <span class="card-badge badge-rose">Differential Algebra</span>
+            </div>
+            
+            <div style="background:#090e1a; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:16px; font-size:0.84rem; color:#cbd5e1; line-height:1.65;">
+              <div style="font-weight:700; color:#38bdf8; margin-bottom:8px;">
+                Why cannot &Phi;(z) be expressed in terms of elementary functions?
+              </div>
+              <p style="margin-bottom:10px;">
+                By <strong>Liouville's Theorem on Integration in Finite Terms</strong> (1835), an antiderivative of the form &int; e<sup>&minus;x&sup2;</sup> dx is elementary if and only if there exists a rational function R(x) satisfying:
+              </p>
+              <div style="background:#060a12; padding:8px 12px; border-radius:4px; font-family:var(--font-mono); color:#fbbf24; margin-bottom:10px;">
+                R'(x) &minus; 2x R(x) = 1
+              </div>
+              <p style="margin-bottom:10px;">
+                If R(x) = P(x)/Q(x), polynomial degree comparison shows that the left-hand side has degree deg(P) + 1 &ge; 1, making it algebraically impossible to match the constant 1. Hence, <strong>e<sup>&minus;x&sup2;</sup> has no elementary antiderivative</strong>.
+              </p>
+              <p style="margin-bottom:0; font-size:0.8rem; color:#94a3b8;">
+                The introduction of the error function <code>erf(x)</code> defines an exact analytical representation &Phi;(z) = 0.5 &bull; [1 + erf(z/&radic;2)], but because <code>erf(x)</code> is transcendental, numerical methods (quadrature, Chebyshev approximations, or series) are strictly required for practical computation.
+              </p>
+            </div>
+
+            <!-- Execution Speed Benchmark Trigger -->
+            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+              <button class="btn btn-emerald btn-sm" id="btn-run-benchmark">
+                <span>&#9654;</span> Run 100,000 Iteration Speed Benchmark
+              </button>
+              <span id="label-benchmark-status" style="font-size:0.8rem; color:#94a3b8; font-family:var(--font-mono);">
+                Ready for benchmarking
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NIST DLMF Reference Verification Table -->
+        <div style="margin-top:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+            <h4 style="font-size:0.9rem; color:#cbd5e1;">NIST Digital Library of Mathematical Functions (DLMF) 18-Point Verification:</h4>
+            <span class="card-badge badge-emerald">64-bit IEEE Reference Accuracy</span>
+          </div>
+
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Test Point (z)</th>
+                  <th>Significance / Critical Point</th>
+                  <th>NIST Ground Truth</th>
+                  <th>Series (Hogg-McKean)</th>
+                  <th>Composite Simpson</th>
+                  <th>Abramowitz &amp; Stegun</th>
+                  <th>Series Abs Error</th>
+                  <th>Simpson Abs Error</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-nist-benchmark">
+                <!-- Dynamically populated via app_hw5.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- PART 3: REAL ANALYSIS & NUMERICAL PROBABILITY MATRIX -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon violet">&equiv;</div>
+            <div>
+              <h2 class="card-title">Part 3: Comparative Analysis &amp; Theoretical Synthesis Matrix</h2>
+              <p class="card-subtitle">Formal side-by-side comparison of integration paradigms and normal distribution numerical strategies.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-violet">Theoretical Foundations</span>
+        </div>
+
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Dimension / Criterion</th>
+                <th>Riemann Integration</th>
+                <th>Lebesgue Integration</th>
+                <th>Normal CDF Power Series</th>
+                <th>Normal CDF Quadrature / Rational</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="strong">Partitioning Strategy</td>
+                <td>Domain slicing: intervals [x<sub>i-1</sub>, x<sub>i</sub>] on the horizontal x-axis.</td>
+                <td>Range slicing: horizontal intervals [y<sub>j-1</sub>, y<sub>j</sub>], computing preimage sets E<sub>j</sub> = f<sup>&minus;1</sup>([y<sub>j-1</sub>, y<sub>j</sub>]).</td>
+                <td>Taylor / Maclaurin expansion of e<sup>&minus;t&sup2;/2</sup> integrated term-by-term.</td>
+                <td>Domain interval [0, z] discretized via Newton-Cotes weights or rational Chebyshev rational fractions.</td>
+              </tr>
+              <tr>
+                <td class="strong">Discontinuous Functions</td>
+                <td>Integrable iff discontinuity set has Lebesgue measure zero (Lebesgue's Criterion).</td>
+                <td>Integrable for any Borel-measurable function bounded by an L¹ envelope.</td>
+                <td>Not applicable (normal PDF is infinitely smooth C<sup>&infin;</sup>).</td>
+                <td>Not applicable (integrand is smooth Gaussian bell curve).</td>
+              </tr>
+              <tr>
+                <td class="strong">Pathological Dirichlet Function</td>
+                <td>Fails to exist: Upper sum U = 1, Lower sum L = 0. Gap U &minus; L = 1 never vanishes.</td>
+                <td>Exists and equals 0: &mu;(Q &cap; [0, 1]) = 0, so 0 &bull; 1 + 1 &bull; 0 = 0.</td>
+                <td>N/A</td>
+                <td>N/A</td>
+              </tr>
+              <tr>
+                <td class="strong">Computational Complexity</td>
+                <td>O(N) operations. Simple evaluation loop; optimal for smooth 1D curves.</td>
+                <td>O(K + M) where K is domain sample density and M is range bin count. Heavy inverse-mapping cost.</td>
+                <td>O(K) operations. Rapid convergence for |z| &le; 3.0; catastrophic cancellation for |z| &gt; 4.0.</td>
+                <td>Simpson: O(N) evaluations. A&amp;S / Cody rational: O(1) evaluations with error &le; 10<sup>&minus;7</sup> to 10<sup>&minus;16</sup>.</td>
+              </tr>
+              <tr>
+                <td class="strong">Practical Engineering Role</td>
+                <td>Foundation of elementary calculus, real-time sensor integration, and standard quadrature.</td>
+                <td>Foundation of probability theory (random variables as measurable functions, L<sup>p</sup> spaces).</td>
+                <td>Educational derivation (Hogg-McKean-Craig Section 3.4), high-precision arbitrary-precision arithmetic.</td>
+                <td>Production software standard (R pnorm, Python scipy.stats.norm, C++ std::erfc).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: TECHNICAL SPECIFICATION & FORMAL PAPER -->
+    <!-- ===================================================================== -->
+    <div id="tab-report" class="tab-pane">
+      <article class="card">
+        <div id="report-rendered-markdown" class="markdown-body">
+          <div style="text-align:center; padding:40px 0; color:#94a3b8;">
+            <div style="font-size:1.5rem; margin-bottom:12px;">Loading Formal Paper &amp; Mathematical Specification...</div>
+            <p style="font-size:0.85rem;">Rendering Markdown and KaTeX LaTeX formulas...</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="integration_engine.js?v=1"></script>
+  <script src="app_hw5.js?v=1"></script>
+</body>
+</html>

@@ -90,6 +90,7 @@ Then navigate to:
 - `http://localhost:8000/ECCvsCaesarCipher/` (ECC vs Caesar Cipher standalone)
 - `http://localhost:8000/hw3/` (Homework 3 standalone)
 - `http://localhost:8000/hw4/` (Homework 4 standalone)
+- `http://localhost:8000/hw5/` (Homework 5 standalone)
 
 ---
 
@@ -129,6 +130,12 @@ Then navigate to:
 │   ├── welford_engine.js        # Exact 3-line Welford algorithm, [0,10] distributions & moments
 │   ├── style.css                # Scoped stylesheet for HW4
 │   └── Homework4_Report.md      # Full academic report with mathematical derivations
+├── hw5/                         # Standalone Module 6: Riemann vs Lebesgue & Normal CDF
+│   ├── index.html               # Dedicated Homework 5 page (Lab + Formal Paper)
+│   ├── app_hw5.js               # UI controller & dual integration canvas visualizers
+│   ├── integration_engine.js    # Riemann, Lebesgue, Power Series, Quadrature & NIST tests
+│   ├── style.css                # Scoped stylesheet for HW5
+│   └── Homework5_Report.md      # Full academic report with Liouville proofs & NIST benchmarks
 └── README.md                    # Project documentation and summary
 ```
 
@@ -139,6 +146,16 @@ Then navigate to:
 You can verify all modules using Node.js:
 
 ```bash
+# Test Riemann vs Lebesgue and Normal CDF algorithms:
+node -e "
+const E = require('./hw5/integration_engine.js').IntegrationEngine;
+const r = E.computeRiemannIntegration(E.TEST_FUNCTIONS.sin, 0, Math.PI, 100);
+console.log('Riemann sin:', r.methods.midpoint.value, 'Exact:', 2.0);
+const l = E.computeLebesgueIntegration(E.TEST_FUNCTIONS.sin, 0, Math.PI, 20);
+console.log('Lebesgue sin:', l.methods.midpoint.value);
+const nist = E.runNistEvaluationSuite(40, 500);
+console.log('NIST z=1.96 Abs Error:', nist[11].series.absError);
+"
 # Test Welford's algorithm and numerical precision:
 node -e "
 const W = require('./hw4/welford_engine.js');
