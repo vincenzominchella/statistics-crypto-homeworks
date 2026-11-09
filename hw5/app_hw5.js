@@ -705,6 +705,9 @@
     // Update Deck Stat
     elements.statNormalVal.textContent = erfVal.toFixed(6);
     elements.statSubNormal.textContent = `z = ${z.toFixed(2)} • High-precision reference`;
+
+    // Redraw Dynamic Log-Log Convergence Canvas
+    drawNormalConvergenceCanvas();
   }
 
   function renderNistBenchmarkTable() {
@@ -746,31 +749,42 @@
     ctx.clearRect(0, 0, w, h);
 
     const padLeft = 55;
-    const padRight = 20;
-    const padTop = 25;
-    const padBottom = 35;
+    const padRight = 25;
+    const padTop = 32;
+    const padBottom = 42;
     const chartW = w - padLeft - padRight;
     const chartH = h - padTop - padBottom;
 
     const Engine = getEngine();
     if (!Engine || !Engine.phiPowerSeries) return;
-    const z = 1.96;
-    const trueVal = 0.975; // Analytical target for z = 1.95996...
 
-    // Series error vs K (K from 2 to 40)
+    // Read active state parameters from sliders
+    const currentZ = state.normalZ;
+    const currentK = state.seriesK;
+    const currentN = state.quadN;
+
+    // High-precision analytical reference for current z
+    const trueVal = Engine.phiErfAnalytical(currentZ);
+
+    // 1. Series Error Curve vs K (k = 1 to 35)
+    const maxK = 35;
     const seriesPoints = [];
-    for (let k = 2; k <= 35; k += 2) {
-      const val = Engine.phiPowerSeries(z, k).value;
+    for (let k = 1; k <= maxK; k++) {
+      const val = Engine.phiPowerSeries(currentZ, k).value;
       const err = Math.max(1e-16, Math.abs(val - trueVal));
-      seriesPoints.push({ k, logErr: Math.log10(err) });
+      seriesPoints.push({ k, logErr: Math.log10(err), err });
     }
 
-    // Simpson error vs N (N from 10 to 500)
+    // 2. Simpson Error Curve vs N (n from 10 to 400 in exponential steps)
+    const minN = 10;
+    const maxN = 400;
+    const simpsonSteps = [10, 16, 24, 34, 50, 70, 100, 140, 200, 280, 400];
     const simpsonPoints = [];
-    for (let n = 10; n <= 400; n += 20) {
-      const val = Engine.phiQuadrature(z, n).simpson;
+    for (let i = 0; i < simpsonSteps.length; i++) {
+      const n = simpsonSteps[i];
+      const val = Engine.phiQuadrature(currentZ, n).simpson;
       const err = Math.max(1e-16, Math.abs(val - trueVal));
-      simpsonPoints.push({ n, logErr: Math.log10(err) });
+      simpsonPoints.push({ n, logErr: Math.log10(err), err });
     }
 
     const minLogErr = -16;
@@ -813,12 +827,18 @@
     ctx.textAlign = 'left';
     ctx.fillText('IEEE 754 Machine Precision Floor (10^-16)', padLeft + 10, yMach - 6);
 
+    // Dynamic Header Target text showing current z
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Evaluation Target: z = ${currentZ.toFixed(3)}  |  Φ(z) = ${trueVal.toFixed(8)}`, padLeft + chartW, padTop - 12);
+
     // 1. Draw Series Error Curve (Cyan)
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 2.2;
     ctx.beginPath();
     for (let i = 0; i < seriesPoints.length; i++) {
-      const x = padLeft + (i / (seriesPoints.length - 1)) * chartW;
+      const x = padLeft + ((seriesPoints[i].k - 1) / (maxK - 1)) * chartW;
       const y = getY(seriesPoints[i].logErr);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -827,10 +847,10 @@
 
     ctx.fillStyle = '#38bdf8';
     for (let i = 0; i < seriesPoints.length; i++) {
-      const x = padLeft + (i / (seriesPoints.length - 1)) * chartW;
+      const x = padLeft + ((seriesPoints[i].k - 1) / (maxK - 1)) * chartW;
       const y = getY(seriesPoints[i].logErr);
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -839,7 +859,7 @@
     ctx.lineWidth = 2.2;
     ctx.beginPath();
     for (let i = 0; i < simpsonPoints.length; i++) {
-      const x = padLeft + (i / (simpsonPoints.length - 1)) * chartW;
+      const x = padLeft + ((Math.log10(simpsonPoints[i].n) - Math.log10(minN)) / (Math.log10(maxN) - Math.log10(minN))) * chartW;
       const y = getY(simpsonPoints[i].logErr);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -848,25 +868,101 @@
 
     ctx.fillStyle = '#10b981';
     for (let i = 0; i < simpsonPoints.length; i++) {
-      const x = padLeft + (i / (simpsonPoints.length - 1)) * chartW;
+      const x = padLeft + ((Math.log10(simpsonPoints[i].n) - Math.log10(minN)) / (Math.log10(maxN) - Math.log10(minN))) * chartW;
       const y = getY(simpsonPoints[i].logErr);
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Legend
+    // 3. Highlight Current Slider Operating Point for Series (K)
+    const currentSeriesVal = Engine.phiPowerSeries(currentZ, currentK).value;
+    const currentSeriesErr = Math.max(1e-16, Math.abs(currentSeriesVal - trueVal));
+    const currentSeriesLog = Math.log10(currentSeriesErr);
+    const kClamped = Math.max(1, Math.min(maxK, currentK));
+    const reticleXK = padLeft + ((kClamped - 1) / (maxK - 1)) * chartW;
+    const reticleYK = getY(currentSeriesLog);
+
+    // Guide vertical line for current K
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(reticleXK, padTop + chartH);
+    ctx.lineTo(reticleXK, reticleYK);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Glowing reticle for K
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.beginPath();
+    ctx.arc(reticleXK, reticleYK, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(reticleXK, reticleYK, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 4. Highlight Current Slider Operating Point for Simpson (N)
+    const currentSimpVal = Engine.phiQuadrature(currentZ, currentN).simpson;
+    const currentSimpErr = Math.max(1e-16, Math.abs(currentSimpVal - trueVal));
+    const currentSimpLog = Math.log10(currentSimpErr);
+    const nClamped = Math.max(minN, Math.min(maxN, currentN));
+    const reticleXN = padLeft + ((Math.log10(nClamped) - Math.log10(minN)) / (Math.log10(maxN) - Math.log10(minN))) * chartW;
+    const reticleYN = getY(currentSimpLog);
+
+    // Guide vertical line for current N
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(reticleXN, padTop + chartH);
+    ctx.lineTo(reticleXN, reticleYN);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Glowing reticle for N
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+    ctx.beginPath();
+    ctx.arc(reticleXN, reticleYN, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#10b981';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(reticleXN, reticleYN, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bottom X-Axis ticks & labels
+    ctx.fillStyle = '#64748b';
+    ctx.font = '9px Fira Code, monospace';
+    ctx.textAlign = 'center';
+    const tickKs = [1, 5, 10, 15, 20, 25, 30, 35];
+    tickKs.forEach(tk => {
+      const tx = padLeft + ((tk - 1) / (maxK - 1)) * chartW;
+      ctx.fillText(`${tk}`, tx, padTop + chartH + 13);
+    });
+    ctx.font = '9px Inter, sans-serif';
+    ctx.fillText('Order K (1-35) / Quadrature Subdivisions N (10-400)', padLeft + chartW / 2, padTop + chartH + 28);
+
+    // Dynamic legend with live parameter readout
     ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(padLeft + 10, padTop + 10, 10, 3);
+    ctx.fillRect(padLeft + 10, padTop + 6, 10, 3);
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '10px Inter, sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Power Series Error vs K', padLeft + 25, padTop + 13);
+    const sErrTxt = currentSeriesErr < 1e-15 ? '< 1e-16' : currentSeriesErr.toExponential(1);
+    ctx.fillText(`Series vs K (Current K=${currentK}: Err ${sErrTxt})`, padLeft + 24, padTop + 9);
 
     ctx.fillStyle = '#10b981';
-    ctx.fillRect(padLeft + 180, padTop + 10, 10, 3);
+    ctx.fillRect(padLeft + 230, padTop + 6, 10, 3);
     ctx.fillStyle = '#cbd5e1';
-    ctx.fillText('Simpson Quadrature Error vs N', padLeft + 195, padTop + 13);
+    const qErrTxt = currentSimpErr < 1e-15 ? '< 1e-16' : currentSimpErr.toExponential(1);
+    ctx.fillText(`Simpson vs N (Current N=${currentN}: Err ${qErrTxt})`, padLeft + 244, padTop + 9);
   }
 
   // =========================================================================
