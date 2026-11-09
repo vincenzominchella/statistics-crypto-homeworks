@@ -213,13 +213,25 @@
     };
   }
 
+  function getEngine() {
+    if (typeof window !== 'undefined') {
+      if (window.IntegrationEngine && window.IntegrationEngine.TEST_FUNCTIONS) {
+        return window.IntegrationEngine;
+      }
+      if (window.IntegrationEngine && window.IntegrationEngine.IntegrationEngine) {
+        return window.IntegrationEngine.IntegrationEngine;
+      }
+    }
+    return typeof IntegrationEngine !== 'undefined' ? IntegrationEngine : {};
+  }
+
   // =========================================================================
   // EXERCISE 1 CONTROLLER: RIEMANN VS LEBESGUE
   // =========================================================================
 
   function updateIntegrationLab() {
-    const Engine = window.IntegrationEngine;
-    if (!Engine) return;
+    const Engine = getEngine();
+    if (!Engine || !Engine.TEST_FUNCTIONS) return;
 
     const funcDef = Engine.TEST_FUNCTIONS[state.funcId];
     if (!funcDef) return;
@@ -406,7 +418,9 @@
     ctx.clearRect(0, 0, w, h);
 
     const r = state.riemannResult;
-    const funcDef = window.IntegrationEngine.TEST_FUNCTIONS[state.funcId];
+    const Engine = getEngine();
+    const funcDef = Engine.TEST_FUNCTIONS ? Engine.TEST_FUNCTIONS[state.funcId] : null;
+    if (!funcDef) return;
     const [a, b] = funcDef.domain;
     const fn = funcDef.fn;
 
@@ -479,14 +493,15 @@
       const x1 = getX(s.x1);
       const barW = Math.max(1, x1 - x0);
       const barTop = getY(s.yMid);
-      const barHeight = yZero - barTop;
+      const topY = Math.min(barTop, yZero);
+      const barHeight = Math.abs(yZero - barTop);
 
       ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
-      ctx.fillRect(x0, barTop, barW, barHeight);
+      ctx.fillRect(x0, topY, barW, barHeight);
 
       ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
       ctx.lineWidth = 1;
-      ctx.strokeRect(x0, barTop, barW, barHeight);
+      ctx.strokeRect(x0, topY, barW, barHeight);
 
       // Midpoint evaluation dot
       ctx.fillStyle = '#38bdf8';
@@ -540,7 +555,9 @@
     ctx.clearRect(0, 0, w, h);
 
     const l = state.lebesgueResult;
-    const funcDef = window.IntegrationEngine.TEST_FUNCTIONS[state.funcId];
+    const Engine = getEngine();
+    const funcDef = Engine.TEST_FUNCTIONS ? Engine.TEST_FUNCTIONS[state.funcId] : null;
+    if (!funcDef) return;
     const [a, b] = funcDef.domain;
     const fn = funcDef.fn;
 
@@ -656,8 +673,8 @@
   // =========================================================================
 
   function updateNormalCdfLab() {
-    const Engine = window.IntegrationEngine;
-    if (!Engine) return;
+    const Engine = getEngine();
+    if (!Engine || !Engine.phiPowerSeries) return;
 
     const z = state.normalZ;
     const K = state.seriesK;
@@ -691,14 +708,14 @@
   }
 
   function renderNistBenchmarkTable() {
-    const Engine = window.IntegrationEngine;
-    if (!Engine) return;
+    const Engine = getEngine();
+    if (!Engine || !Engine.runNistEvaluationSuite) return;
 
     const nistResults = Engine.runNistEvaluationSuite(40, 500);
     state.nistResult = nistResults;
 
-    const fmt = (v) => v.toFixed(8);
-    const fmtErr = (e) => e === 0 ? '0.00e+0' : e.toExponential(2);
+    const fmt = (v) => (v !== undefined && v !== null && !isNaN(v)) ? Number(v).toFixed(8) : '0.00000000';
+    const fmtErr = (e) => (e === 0 || !e || isNaN(e)) ? '0.00e+0' : Number(e).toExponential(2);
 
     elements.tbodyNistBenchmark.innerHTML = nistResults.map(entry => {
       return `
@@ -735,7 +752,8 @@
     const chartW = w - padLeft - padRight;
     const chartH = h - padTop - padBottom;
 
-    const Engine = window.IntegrationEngine;
+    const Engine = getEngine();
+    if (!Engine || !Engine.phiPowerSeries) return;
     const z = 1.96;
     const trueVal = 0.975; // Analytical target for z = 1.95996...
 
@@ -856,8 +874,8 @@
   // =========================================================================
 
   function runBenchmarkSuite() {
-    const Engine = window.IntegrationEngine;
-    if (!Engine) return;
+    const Engine = getEngine();
+    if (!Engine || !Engine.benchmarkExecutionSpeed) return;
 
     elements.labelBenchmarkStatus.textContent = 'Running 100,000 evaluations...';
     elements.btnRunBenchmark.disabled = true;
@@ -969,3 +987,4 @@
   // Auto boot
   window.addEventListener('DOMContentLoaded', init);
 })();
+

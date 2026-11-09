@@ -5,7 +5,21 @@
  * ============================================================================
  */
 
-(function(exports) {
+(function(root, factory) {
+  const api = factory();
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  }
+  if (typeof window !== 'undefined') {
+    window.IntegrationEngine = api;
+  }
+  if (typeof self !== 'undefined') {
+    self.IntegrationEngine = api;
+  }
+  if (root) {
+    root.IntegrationEngine = api;
+  }
+})(typeof self !== 'undefined' ? self : this, function() {
   'use strict';
 
   // =========================================================================
@@ -399,7 +413,7 @@
    * Φ(z) = 1/2 + (1/sqrt(2π)) * ∑_{k=0}^K [(-1)^k * z^(2k+1)] / [2^k * (2k+1) * k!]
    */
   function phiPowerSeries(z, K = 50) {
-    if (z === 0) return 0.5;
+    if (z === 0) return { value: 0.5, kTermsUsed: 0, maxTermMagnitude: 0 };
     const sign = z < 0 ? -1 : 1;
     const absZ = Math.abs(z);
 
@@ -635,7 +649,7 @@
   }
 
   // Export engine
-  exports.IntegrationEngine = {
+  return {
     TEST_FUNCTIONS,
     computeRiemannIntegration,
     computeLebesgueIntegration,
@@ -648,4 +662,5 @@
     benchmarkExecutionSpeed
   };
 
-})(typeof module !== 'undefined' && module.exports ? module.exports : (window.IntegrationEngine = {}));
+});
+
