@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistical Independence, Contingency Tables &amp; Chi-Square Analysis • Homework 6</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="brand-badge">
+            <span class="dot"></span> Foundations of Probability &amp; Categorical Statistics
+          </div>
+          <span class="meta-tag">Bivariate (X, Y) &bull; Contingency Tables &bull; Independence &bull; Pearson χ² &bull; p-Value &bull; Cramer's V &bull; Simpson's Paradox &bull; Causality</span>
+        </div>
+        <div>
+          <a href="../" class="btn btn-secondary btn-sm">
+            &larr; Master Hub Portal
+          </a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">
+          Statistical Independence, Contingency Tables &amp; Chi-Square Analysis Suite
+        </h1>
+        <p class="hero-subtitle">
+          Programmatic derivation of bivariate contingency matrices, marginal and directional conditional distributions, expected frequencies under H<sub>0</sub>, exact asymptotic Chi-Square inference with incomplete gamma p-values, and formal distinction between statistical association and causality.
+        </p>
+      </div>
+    </header>
+
+    <!-- Navigation Hub Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tab-btn-lab" data-target="tab-lab">
+        <span>&fnof;(x, y)</span> Interactive Analysis Lab
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-report" data-target="tab-report">
+        <span>&para;</span> Technical Specification &amp; Formal Paper
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE ANALYSIS LAB -->
+    <!-- ===================================================================== -->
+    <div id="tab-lab" class="tab-pane active">
+
+      <!-- High-Level Metric Stat Cards -->
+      <section class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <span class="stat-label">Total Sample Size (N)</span>
+          <span class="stat-value" style="color:var(--accent-cyan);" id="stat-sample-total">740</span>
+          <span class="stat-sub" id="stat-sub-dimensions">Grid: 3 rows × 3 cols (9 cells)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pearson Chi-Square (χ²)</span>
+          <span class="stat-value" style="color:var(--accent-emerald);" id="stat-chi-square">193.364</span>
+          <span class="stat-sub" id="stat-sub-df">df = (3-1)×(3-1) = 4</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Asymptotic p-Value</span>
+          <span class="stat-value" style="color:var(--accent-amber);" id="stat-p-value">&lt; 1.00e-12</span>
+          <span class="stat-sub" id="stat-sub-critical">Critical χ²(α=0.05): 9.488</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Statistical Verdict</span>
+          <span class="stat-value" style="color:var(--accent-rose);" id="stat-verdict">Dependent</span>
+          <span class="stat-sub" id="stat-sub-cramer">Cramér's V = 0.362 (Strong)</span>
+        </div>
+      </section>
+
+      <!-- Section 1: Dataset & Hypothesis Controls -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&Sigma;</div>
+            <div>
+              <h2 class="card-title" id="dataset-title">Cybersecurity: Attack Vector vs. Breach Severity</h2>
+              <p class="card-subtitle" id="dataset-desc">Cross-classification of 740 enterprise security incidents categorizing initial attack vector against resulting breach severity.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-rose" id="badge-hypothesis-status">Reject H0 • Statistically Dependent</span>
+        </div>
+
+        <div class="grid-3" style="margin-top:16px;">
+          <!-- Dataset Selector -->
+          <div class="form-group">
+            <label class="form-label" for="select-dataset">Benchmark Bivariate Dataset</label>
+            <select class="form-select" id="select-dataset">
+              <option value="cybersecurity">Cybersecurity: Incident Vector vs. Impact (3x3)</option>
+              <option value="clinical">Clinical Trial: Antiviral Drug vs. Clearance (2x2)</option>
+              <option value="academic">Academic Research: Study Modality vs. Grade (3x2)</option>
+              <option value="prng">Cryptographic PRNG: Bit Uniformity (2x2 - Independent)</option>
+              <option value="simpson_aggregated">Simpson's Paradox: Pooled Hospital Outcome (2x2)</option>
+              <option value="simpson_mild">Simpson's Stratum: Mild Patients (2x2)</option>
+              <option value="simpson_severe">Simpson's Stratum: Severe Patients (2x2)</option>
+            </select>
+          </div>
+
+          <!-- Significance Level Alpha -->
+          <div class="form-group">
+            <label class="form-label" for="select-alpha">Significance Level (α)</label>
+            <select class="form-select" id="select-alpha">
+              <option value="0.10">α = 0.10 (90% Confidence)</option>
+              <option value="0.05" selected>α = 0.05 (95% Confidence - Standard)</option>
+              <option value="0.01">α = 0.01 (99% Confidence)</option>
+              <option value="0.001">α = 0.001 (99.9% High Stringency)</option>
+            </select>
+          </div>
+
+          <!-- Simpson's Fast Switcher -->
+          <div class="form-group">
+            <label class="form-label">Simpson's Paradox Inspector</label>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-secondary btn-sm" id="btn-simpson-agg" style="flex:1;">Pooled</button>
+              <button class="btn btn-secondary btn-sm" id="btn-simpson-mild" style="flex:1;">Mild</button>
+              <button class="btn btn-secondary btn-sm" id="btn-simpson-severe" style="flex:1;">Severe</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Interactive Contingency Table -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">#</div>
+            <div>
+              <h2 class="card-title">Interactive Bivariate Contingency Matrix</h2>
+              <p class="card-subtitle">Examine cell counts, marginal totals, expected values under independence, conditional profiles, and standardized residuals.</p>
+            </div>
+          </div>
+
+          <!-- View Mode Selector Pills -->
+          <div class="pill-group">
+            <button class="pill-btn active" data-mode="observed">Observed (O<sub>ij</sub>)</button>
+            <button class="pill-btn" data-mode="expected">Expected (E<sub>ij</sub>)</button>
+            <button class="pill-btn" data-mode="deviations">Deviations (O - E)</button>
+            <button class="pill-btn" data-mode="row_pct">Row Cond. P(Y|X)</button>
+            <button class="pill-btn" data-mode="col_pct">Col Cond. P(X|Y)</button>
+            <button class="pill-btn" data-mode="chi2_cells">Cell χ²</button>
+            <button class="pill-btn" data-mode="std_residuals">Std. Residuals</button>
+          </div>
+        </div>
+
+        <!-- Rendered Table -->
+        <div class="contingency-table-wrapper" id="contingency-table-container">
+          <!-- Dynamic JS Injection -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.75rem; color:#94a3b8; padding:0 4px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>Residual Heatmap:</span>
+            <span class="shade-over-high" style="display:inline-block; width:16px; height:12px; border:1px solid rgba(255,255,255,0.1); border-radius:2px;"></span>
+            <span style="color:#38bdf8;">Over-represented (std &ge; +2)</span>
+            <span class="shade-under-high" style="display:inline-block; width:16px; height:12px; border:1px solid rgba(255,255,255,0.1); border-radius:2px; margin-left:8px;"></span>
+            <span style="color:#f43f5e;">Under-represented (std &le; -2)</span>
+          </div>
+          <div>
+            <span>Expected Formula: E<sub>ij</sub> = (R<sub>i</sub> &times; C<sub>j</sub>) / N &bull; Residual: d<sub>ij</sub> = (O - E) / SE(d)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Dual Canvases (Mosaic Plot & Chi-Square PDF) -->
+      <section class="grid-2">
+        
+        <!-- Canvas Left: Mosaic Plot -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon cyan">&#9638;</div>
+              <div>
+                <h3 class="card-title">Mosaic Plot (Marimekko Partitioning)</h3>
+                <p class="card-subtitle">Width = Column Marginals f<sub>Y</sub> | Height = Conditional Probabilities P(X|Y)</p>
+              </div>
+            </div>
+            <span class="card-badge badge-cyan">Area = Joint Probability</span>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="canvas-mosaic" width="600" height="340"></canvas>
+          </div>
+          <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+            Under statistical independence, horizontal dividing lines align across all columns into straight continuous bars. Staggered, irregular blocks demonstrate strong conditional dependency.
+          </p>
+        </div>
+
+        <!-- Canvas Right: Chi-Square Density & Critical Rejection Zone -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="card-icon rose">&chi;²</div>
+              <div>
+                <h3 class="card-title">Chi-Square Asymptotic Distribution</h3>
+                <p class="card-subtitle">Theoretical density &chi;²(df) with critical threshold &amp; calculated statistic</p>
+              </div>
+            </div>
+            <span class="card-badge badge-rose">Rejection Region α</span>
+          </div>
+          <div class="canvas-wrapper">
+            <canvas id="canvas-chisquare" width="600" height="340"></canvas>
+          </div>
+          <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+            The red shaded right tail represents the critical rejection region for significance level α. When the green marker (χ²<sub>calc</sub>) falls within the red region, the null hypothesis of independence is formally rejected.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- Section 4: Diagnostics, Cochran Rule & Effect Sizes -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon amber">&Phi;</div>
+            <div>
+              <h2 class="card-title">Validity Diagnostics &amp; Association Effect Sizes</h2>
+              <p class="card-subtitle">Cochran sample size criteria, normalized correlation coefficients, and binary risk metrics.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cochran Rule Banner -->
+        <div id="cochran-banner" class="callout-box success">
+          <div class="callout-title">Cochran Validity Condition</div>
+          <div class="callout-desc" id="cochran-text">
+            Checking expected frequency constraints for asymptotic Chi-Square validity...
+          </div>
+        </div>
+
+        <!-- Effect Size Grid -->
+        <div class="grid-3" style="margin-top:18px;">
+          <div class="stat-card">
+            <span class="stat-label">Cramér's V Coefficient</span>
+            <span class="stat-value" style="color:var(--accent-cyan);" id="metric-cramer-v">0.362</span>
+            <span class="stat-sub">V = &radic;[χ² / (N &times; min(r-1, c-1))] &bull; Range [0, 1]</span>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-label">Pearson Contingency Coeff (C)</span>
+            <span class="stat-value" style="color:var(--accent-emerald);" id="metric-contingency-c">0.455</span>
+            <span class="stat-sub">C = &radic;[χ² / (χ² + N)] &bull; Corrected for grid dimension</span>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-label">Tschuprow's T</span>
+            <span class="stat-value" style="color:var(--accent-violet);" id="metric-tschuprow-t">0.362</span>
+            <span class="stat-sub">T = &radic;[χ² / (N &times; &radic;((r-1)(c-1)))]</span>
+          </div>
+        </div>
+
+        <!-- Specialized 2x2 Metrics Box (Odds Ratio & Relative Risk) -->
+        <div id="box-two-by-two" style="display:none; margin-top:18px; padding-top:16px; border-top:1px solid var(--border-color);">
+          <h4 style="font-size:0.95rem; color:#cbd5e1; margin-bottom:12px; font-family:var(--font-heading);">
+            2 &times; 2 Binary Risk &amp; Odds Multipliers (Epidemiological / Clinical Metrics)
+          </h4>
+          <div class="grid-2">
+            <div class="stat-card">
+              <span class="stat-label">Odds Ratio (OR)</span>
+              <span class="stat-value" style="color:var(--accent-amber);" id="metric-odds-ratio">13.78</span>
+              <span class="stat-sub">OR = (O<sub>11</sub>O<sub>22</sub>) / (O<sub>12</sub>O<sub>21</sub>) &bull; 95% Wald CI</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Relative Risk (RR)</span>
+              <span class="stat-value" style="color:var(--accent-cyan);" id="metric-relative-risk">3.56</span>
+              <span class="stat-sub">RR = [O<sub>11</sub>/(O<sub>11</sub>+O<sub>12</sub>)] / [O<sub>21</sub>/(O<sub>21</sub>+O<sub>22</sub>)]</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Synthetic Generator & Custom Raw Data Input -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon violet">&oplus;</div>
+            <div>
+              <h2 class="card-title">Synthetic Bivariate Generator &amp; Custom Data Importer</h2>
+              <p class="card-subtitle">Generate Monte Carlo multinomial tables with tunable correlation, or import your own CSV dataset.</p>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-toggle-custom-editor">Open Custom Editor</button>
+        </div>
+
+        <!-- Synthetic Generator Sliders -->
+        <div class="grid-3" style="align-items:center;">
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label">Sample Size (N)</label>
+              <span class="card-badge badge-cyan" id="badge-synth-n">N = 1000</span>
+            </div>
+            <input type="range" class="form-input" id="slider-synth-n" min="100" max="5000" step="100" value="1000" style="padding:0;">
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label">Association Strength (δ)</label>
+              <span class="card-badge badge-amber" id="badge-synth-delta">δ = 0.40</span>
+            </div>
+            <input type="range" class="form-input" id="slider-synth-delta" min="0.0" max="0.95" step="0.05" value="0.40" style="padding:0;">
+          </div>
+
+          <div>
+            <button class="btn btn-primary" id="btn-generate-synthetic" style="width:100%; margin-top:10px;">
+              Generate Synthetic Table
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Editor Sub-Panel (Collapsible) -->
+        <div id="custom-editor-section" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
+          <div class="form-group">
+            <label class="form-label">Paste Raw Data (CSV / TSV Matrix or Raw Pairs "X, Y")</label>
+            <textarea class="form-textarea" id="textarea-raw-data" rows="5" placeholder='Format A: Matrix Table with Headers&#10;Attack,Low,Medium,High&#10;Phishing,150,50,20&#10;ZeroDay,10,80,120&#10;&#10;Format B: Raw Paired Observations&#10;Phishing, Low&#10;ZeroDay, High&#10;Phishing, Low'></textarea>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-parse-raw-data">
+            Parse &amp; Analyze Custom Input
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: TECHNICAL SPECIFICATION & FORMAL PAPER -->
+    <!-- ===================================================================== -->
+    <div id="tab-report" class="tab-pane">
+      <article class="report-paper">
+        <div id="report-rendered-markdown">
+          <div style="text-align:center; padding:60px 20px; color:#94a3b8;">
+            <div style="font-size:1.5rem; margin-bottom:12px;">Loading Formal Paper &amp; Mathematical Specification...</div>
+            <p style="font-size:0.85rem;">Rendering Markdown and KaTeX LaTeX formulas...</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="independence_engine.js?v=1"></script>
+  <script src="app_hw6.js?v=1"></script>
+</body>
+</html>

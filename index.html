@@ -294,6 +294,50 @@
         </div>
       </article>
 
+      <!-- CARD 7: HOMEWORK 6 -->
+      <article class="card" style="padding:28px; display:flex; flex-direction:column; justify-content:space-between; border-color:#1e293b; background:linear-gradient(180deg, #0d1527 0%, #070d1a 100%); transition:transform 0.2s ease, border-color 0.2s ease; box-shadow:0 12px 32px rgba(0,0,0,0.4);" onmouseover="this.style.borderColor='#10b98166'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='#1e293b'; this.style.transform='translateY(0)'">
+        <div>
+          <!-- Header -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+            <div style="width:48px; height:48px; border-radius:12px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#34d399; font-size:1.4rem; font-weight:700;">
+              &chi;²
+            </div>
+            <span class="card-badge badge-emerald" style="font-size:0.75rem; padding:4px 10px;">Module 7 &bull; Categorical Independence</span>
+          </div>
+
+          <h2 style="font-size:1.35rem; font-family:var(--font-heading); color:#ffffff; margin-bottom:8px; line-height:1.3;">
+            Homework 6: Statistical Independence &amp; Contingency Analysis
+          </h2>
+          <p style="font-size:0.86rem; color:#94a3b8; line-height:1.55; margin-bottom:18px;">
+            Bivariate categorical distributions $(X, Y)$, programmatic construction of $r \times c$ contingency matrices, marginal and conditional distributions, expected frequencies under $H_0$, Pearson's $\chi^2$ test with exact incomplete gamma $p$-values, Cramér's $V$, and formal exploration of association versus causality (Simpson's paradox).
+          </p>
+
+          <!-- Key Highlights List -->
+          <ul style="font-size:0.82rem; color:#cbd5e1; line-height:1.65; padding-left:18px; margin-bottom:20px;">
+            <li><strong>Programmatic Contingency Engine:</strong> Arbitrary $r \times c$ table construction, joint frequencies, and directional conditional profiles ($P(Y \mid X)$ and $P(X \mid Y)$).</li>
+            <li><strong>Expected Frequencies &amp; Multinomial MLE:</strong> Mathematical derivation of $E_{ij} = \frac{R_i C_j}{N}$ under independence via constrained Maximum Likelihood Estimation.</li>
+            <li><strong>Pearson $\chi^2$ Asymptotics &amp; Incomplete Gamma:</strong> Derivation of degrees of freedom $(r-1)(c-1)$, machine-precision $p$-values, and Cochran validity checks.</li>
+            <li><strong>Interactive Mosaic &amp; Density Visualizers:</strong> Marimekko area partitioning and $\chi^2$ continuous rejection tail inspection.</li>
+            <li><strong>Association vs. Causality &amp; Simpson’s Paradox:</strong> Multi-stratum causal decomposition proving how unmeasured confounding inverts marginal associations.</li>
+          </ul>
+
+          <!-- Feature Badges -->
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:20px;">
+            <span class="card-badge badge-emerald" style="font-size:0.68rem;">Contingency Matrix</span>
+            <span class="card-badge badge-cyan" style="font-size:0.68rem;">Pearson χ² &amp; p-Value</span>
+            <span class="card-badge badge-amber" style="font-size:0.68rem;">Cramér's V Effect Size</span>
+            <span class="card-badge badge-rose" style="font-size:0.68rem;">Simpson's Paradox &amp; DAGs</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; pt:12px; border-top:1px solid #1e293b; margin-top:auto;">
+          <a href="./hw6/" class="btn btn-primary btn-sm" style="flex:1; text-align:center; padding:10px 14px; font-weight:700; background:linear-gradient(135deg, #059669 0%, #047857 100%); border-color:#34d399;">
+            Launch HW6 &rarr;
+          </a>
+        </div>
+      </article>
+
     </main>
 
     <!-- Direct Submodule Links Callout -->
@@ -341,6 +385,12 @@
           <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Homework 5 Live URL</div>
           <a href="./hw5/" style="font-family:var(--font-mono); font-size:0.85rem; color:#38bdf8; text-decoration:none; word-break:break-all;">
             https://vincenzominchella.github.io/statistics-crypto-homeworks/hw5/
+          </a>
+        </div>
+        <div style="background:#0c1322; border:1px solid #1e293b; border-radius:var(--radius-sm); padding:14px;">
+          <div style="font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; margin-bottom:4px;">Homework 6 Live URL</div>
+          <a href="./hw6/" style="font-family:var(--font-mono); font-size:0.85rem; color:#34d399; text-decoration:none; word-break:break-all;">
+            https://vincenzominchella.github.io/statistics-crypto-homeworks/hw6/
           </a>
         </div>
       </div>
