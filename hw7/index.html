@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modes of Convergence &amp; Bayesian Inference Suite • Homework 7</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- KaTeX for formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Hero Header -->
+    <header class="header-hero">
+      <div class="header-top">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <div class="brand-badge">
+            <span class="dot"></span> Probability Theory &amp; Bayesian Statistical Inference
+          </div>
+          <span class="meta-tag">Convergence Modes (a.s., P, L², d) &bull; LLN &bull; CLT &bull; &radic;n Scaling &bull; Additivity of Variance &bull; Bayes' Theorem &bull; Prior &bull; Likelihood &bull; Posterior</span>
+        </div>
+        <div>
+          <a href="../" class="btn btn-secondary btn-sm">
+            &larr; Master Hub Portal
+          </a>
+        </div>
+      </div>
+      <div>
+        <h1 class="hero-title">
+          Modes of Convergence, &radic;n Scaling &amp; Bayesian Statistical Inference Suite
+        </h1>
+        <p class="hero-subtitle">
+          Comprehensive exploration of the four convergence modes in probability theory (Almost Sure, In Probability, Mean-Square L², In Distribution), the first-principles derivation of the &radic;n scaling exponent under independent variance additivity, and the foundational triad of Bayesian statistical inference (Prior, Likelihood, Posterior).
+        </p>
+      </div>
+    </header>
+
+    <!-- Navigation Hub Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab-btn active" id="tab-btn-lab" data-target="tab-lab">
+        <span>&fnof;(X<sub>n</sub>, &theta;)</span> Interactive Simulation Lab
+      </button>
+      <button class="nav-tab-btn" id="tab-btn-report" data-target="tab-report">
+        <span>&para;</span> Technical Specification &amp; Formal Paper
+      </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE SIMULATION LAB -->
+    <!-- ===================================================================== -->
+    <div id="tab-lab" class="tab-pane active">
+
+      <!-- High-Level Metric Stat Cards -->
+      <section class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-card">
+          <span class="stat-label">LLN Sample Mean (X&#772;<sub>n</sub>)</span>
+          <span class="stat-value" style="color:var(--accent-cyan);" id="stat-sample-mean">0.0024</span>
+          <span class="stat-sub" id="stat-sub-lln">Target &mu; = 0.0 &bull; Bound &plusmn;2&sigma;/&radic;n: &plusmn;0.089</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">CLT Standard Error (SE)</span>
+          <span class="stat-value" style="color:var(--accent-emerald);" id="stat-std-error">0.0447</span>
+          <span class="stat-sub" id="stat-sub-clt">&sigma;/&radic;n with n = 500 &bull; Scale &radic;n = 22.36</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Bayesian Posterior Mean</span>
+          <span class="stat-value" style="color:var(--accent-amber);" id="stat-post-mean">0.6667</span>
+          <span class="stat-sub" id="stat-sub-bayes-ci">95% Credible Interval: [0.471, 0.836]</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Bayesian Epistemic Shift</span>
+          <span class="stat-value" style="color:var(--accent-violet);" id="stat-info-gain">6.0&times;</span>
+          <span class="stat-sub" id="stat-sub-info">Precision ratio: &tau;<sub>post</sub> / &tau;<sub>prior</sub></span>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- MODULE 1: MODES OF CONVERGENCE & SQRT(N) SCALING -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon cyan">&Sigma;</div>
+            <div>
+              <h2 class="card-title">Module 1: Modes of Convergence &amp; &radic;n Scaling Laws</h2>
+              <p class="card-subtitle">Pathwise sample trajectories, envelope bounds, counterexamples, and variance additivity under independence.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-cyan" id="badge-scenario-status">LLN &amp; CLT Standard Walk</span>
+        </div>
+
+        <div class="grid-3" style="margin-top:16px;">
+          <!-- Scenario Selector -->
+          <div class="form-group">
+            <label class="form-label" for="select-convergence-scenario">Stochastic Convergence Scenario</label>
+            <select class="form-select" id="select-convergence-scenario">
+              <option value="standard_lln_clt">Standard IID Random Walk (LLN a.s. &amp; CLT d)</option>
+              <option value="sliding_indicator">Sliding Indicator / Typing Monkey (P without a.s.)</option>
+              <option value="escaping_spike">Escaping Spike / Heavy Tail (a.s. &amp; P without L²)</option>
+              <option value="sign_flip">Symmetric Sign Inversion (d without P)</option>
+            </select>
+          </div>
+
+          <!-- Number of Steps N -->
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label">Sequence Length (n)</label>
+              <span class="card-badge badge-cyan" id="badge-conv-n">n = 300</span>
+            </div>
+            <input type="range" class="form-input" id="slider-conv-n" min="50" max="800" step="25" value="300" style="padding:0;">
+          </div>
+
+          <!-- Tolerance Epsilon -->
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label">Tolerance Threshold (&epsilon;)</label>
+              <span class="card-badge badge-amber" id="badge-conv-eps">&epsilon; = 0.15</span>
+            </div>
+            <input type="range" class="form-input" id="slider-conv-eps" min="0.05" max="0.50" step="0.01" value="0.15" style="padding:0;">
+          </div>
+        </div>
+
+        <!-- Scenario Explanatory Callout Banner -->
+        <div id="convergence-scenario-callout" class="callout-box" style="margin-top:12px;">
+          <div class="callout-title" id="conv-callout-title">Standard IID Random Walk (LLN &amp; CLT)</div>
+          <div class="callout-desc" id="conv-callout-desc">
+            Increments X<sub>i</sub> &isin; {-1, +1} with P(&plusmn;1) = 0.5. Demonstrates almost sure convergence of sample mean to &mu; = 0, with variance decay &sigma;²/n = 1/n and fluctuation envelope bounds &plusmn;2&sigma;/&radic;n.
+          </div>
+        </div>
+
+        <!-- Dual Visualizer Canvases: Side-by-Side -->
+        <div class="grid-2" style="margin-top:20px;">
+          
+          <!-- Canvas 1A: Trajectory Visualizer -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);">Sample Paths X<sub>n</sub>(&omega;) vs. Step n</span>
+              <span class="card-badge badge-cyan">Pathwise Trajectories</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-trajectories" width="600" height="320"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Multiple realized stochastic sample paths. Dashed red curves represent the theoretical 95% fluctuation envelope bounds &plusmn;2&sigma;/&radic;n.
+            </p>
+          </div>
+
+          <!-- Canvas 1B: Metric Decay / Distribution -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);">Error Probability P(|X<sub>n</sub> - X| &gt; &epsilon;) &amp; L² MSE</span>
+              <span class="card-badge badge-emerald">Metric Decay Law</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-convergence-metrics" width="600" height="320"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Comparing empirical error probability decay against the theoretical mean-square error E[(X<sub>n</sub> - X)²].
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- MODULE 2: BAYESIAN INFERENCE & TRIAD UPDATING LAB -->
+      <!-- =================================================================== -->
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon emerald">&theta;</div>
+            <div>
+              <h2 class="card-title">Module 2: Bayesian Statistical Inference &amp; Conditional Probability</h2>
+              <p class="card-subtitle">Synthesizing Prior Probability, Likelihood Function, and Posterior Probability via Bayes' Theorem.</p>
+            </div>
+          </div>
+          <span class="card-badge badge-emerald" id="badge-bayes-model">Beta-Binomial Model</span>
+        </div>
+
+        <div class="grid-3" style="margin-top:16px;">
+          <!-- Model Selector -->
+          <div class="form-group">
+            <label class="form-label" for="select-bayes-model">Bayesian Inference Paradigm</label>
+            <select class="form-select" id="select-bayes-model">
+              <option value="beta_binomial">Beta-Binomial Conjugacy (Rates &amp; Proportions)</option>
+              <option value="normal_normal">Normal-Normal Conjugacy (Gaussian Mean &amp; Precision)</option>
+              <option value="medical_screening">Medical Diagnostic Screening (Base Rate Fallacy)</option>
+            </select>
+          </div>
+
+          <!-- Dynamic Parameter Group A -->
+          <div class="form-group" id="group-param-a">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label" id="label-param-a">Prior Pseudo-Counts (&alpha;₀, &beta;₀)</label>
+              <span class="card-badge badge-cyan" id="badge-param-a">&alpha;₀ = 2, &beta;₀ = 2</span>
+            </div>
+            <input type="range" class="form-input" id="slider-param-a" min="0.5" max="20" step="0.5" value="2" style="padding:0;">
+          </div>
+
+          <!-- Dynamic Parameter Group B -->
+          <div class="form-group" id="group-param-b">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <label class="form-label" id="label-param-b">Observed Successes (k / n)</label>
+              <span class="card-badge badge-emerald" id="badge-param-b">k = 14 / n = 20</span>
+            </div>
+            <input type="range" class="form-input" id="slider-param-b" min="0" max="50" step="1" value="14" style="padding:0;">
+          </div>
+        </div>
+
+        <!-- Model Explanation Callout -->
+        <div id="bayes-model-callout" class="callout-box success" style="margin-top:12px;">
+          <div class="callout-title" id="bayes-callout-title">Beta-Binomial Conjugacy (Rate Updating)</div>
+          <div class="callout-desc" id="bayes-callout-desc">
+            Prior &theta; ~ Beta(&alpha;₀, &beta;₀) updated with k successes in n Bernoulli trials. Posterior &theta;|k ~ Beta(&alpha;₀ + k, &beta;₀ + n - k). Illustrates how prior information acts as pseudo-observations.
+          </div>
+        </div>
+
+        <!-- Dual Bayesian Visualizer Canvases -->
+        <div class="grid-2" style="margin-top:20px;">
+          
+          <!-- Canvas 2A: Triad Density Curves (Prior, Likelihood, Posterior) -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);">Bayesian Triad: Prior vs. Likelihood vs. Posterior</span>
+              <span class="card-badge badge-cyan">Epistemic Synthesis</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-bayes-triad" width="600" height="320"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Dashed Cyan = Prior P(&theta;) &bull; Amber = Normalized Likelihood L(&theta;; x) &bull; Solid Emerald = Posterior P(&theta;|x).
+            </p>
+          </div>
+
+          <!-- Canvas 2B: Sequential Updating Dynamics -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.9rem; font-weight:700; color:var(--text-main);">Sequential Learning Dynamics (Today's Posterior is Tomorrow's Prior)</span>
+              <span class="card-badge badge-violet">Sequential Convergence</span>
+            </div>
+            <div class="canvas-wrapper">
+              <canvas id="canvas-bayes-sequential" width="600" height="320"></canvas>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-top:8px;">
+              Evolution of the posterior probability density as sample size n advances (n = 0, 1, 5, 20, 50, 100).
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Quantitative Synthesis Table Container -->
+        <div id="bayes-table-container" style="margin-top:20px;">
+          <!-- Dynamically populated comparison table -->
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: TECHNICAL SPECIFICATION & FORMAL PAPER -->
+    <!-- ===================================================================== -->
+    <div id="tab-report" class="tab-pane">
+      <article class="report-paper">
+        <div id="report-rendered-markdown">
+          <div style="text-align:center; padding:60px 20px; color:#94a3b8;">
+            <div style="font-size:1.5rem; margin-bottom:12px;">Loading Formal Paper &amp; Mathematical Specification...</div>
+            <p style="font-size:0.85rem;">Rendering Markdown and KaTeX LaTeX formulas...</p>
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="convergence_bayes_engine.js?v=1"></script>
+  <script src="app_hw7.js?v=1"></script>
+</body>
+</html>
